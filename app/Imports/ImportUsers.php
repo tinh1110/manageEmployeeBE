@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use App\Events\ImportedUser;
+use App\Models\Imported_users;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -66,12 +68,14 @@ class ImportUsers implements ToCollection,WithStartRow,WithStyles
                 $error = null;
             }
         }
-        DB::table('imported_users')->where('file_name',$this->fileName)->update([
+        Imported_users::where('file_name',$this->fileName)->update([
             'error' => $error,
             'status' => 1,
             'success_amount' => $row_success,
             'fail_amount' => $row_fail,
         ]);
+        $imported = Imported_users::where('file_name',$this->fileName)->first();
+        broadcast(new ImportedUser($imported));
         return redirect()->back();
     }
     public function styles(Worksheet $sheet)

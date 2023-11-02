@@ -38,30 +38,26 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         return [
             'name',
             'email',
-            'password',
             'address',
             'phone_number',
             'dob',
-            'details',
             'gender',
-            'role_id',
-            'status'
+            'role',
+            'status',
+            'details',
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $lastRow = $sheet->getHighestRow();
-        for ($row = 2; $row <= $lastRow; $row++) {
-            $sheet->getStyle("A{$row}:Z{$row}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        }
-        return [
-            // Style the first row as bold text.
-            1    => [
-                'font' => ['bold' => true],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        $sheet->getStyle('A1:I1')->applyFromArray([
+            'fill' => [
+                'fillType' => 'solid',
+                'startColor' => [
+                    'rgb' => 'FFA500', // Màu cam
+                ],
             ],
-        ];
+        ]);
     }
 
     /**
@@ -69,17 +65,18 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     */
     public function map($row): array
     {
+        $gender = User::getGender($row->gender);
+        $status = User::getStatus($row->status);
         return [
-            $row['name'],
-            $row['email'],
-            $row['password'],
-            $row['address'],
-            $row['phone_number'],
-            $row['dob'],
-            $row['details'],
-            $row['gender'],
-            $row['role_id'],
-            $row['status'],
+            $row->name,
+            $row->email,
+            $row->address,
+            $row->phone_number,
+            $row->dob,
+            $gender,
+            $row->role->role_name,
+            $status,
+            $row->details,
         ];
     }
 }

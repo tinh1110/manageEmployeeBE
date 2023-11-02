@@ -56,7 +56,7 @@ class AdminController extends BaseApiController
     {
         $file = $request->file('file');
         $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
-        $file->storeAs('import_users', $fileName, 'public');
+        $file->storeAs('import_users', $fileName);
         $row_success = 0;
         $row_fail = 0;
         $error = "";

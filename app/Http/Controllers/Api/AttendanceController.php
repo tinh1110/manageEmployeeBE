@@ -9,6 +9,7 @@ use App\Http\Requests\Attendance\UpdateAttendanceRequest;
 use App\Http\Resources\ImportAttendance\ImportAttendanceResource;
 use App\Http\Resources\User\UserResource;
 use App\Imports\AttendanceImport;
+use App\Jobs\ImportAttendanceJob;
 use App\Models\ImportAttendances;
 use App\Repositories\AttendanceRepository;
 use App\Repositories\ImportAttendanceRepository;
@@ -16,6 +17,7 @@ use App\Repositories\RoleAttendanceRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\AttendanceTypeRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\Attendance\AttendanceResource;
 use App\Jobs\SendAttendanceReviewMail;
@@ -291,23 +293,24 @@ class AttendanceController extends BaseApiController
      */
     public function importAttendance(ImportAttendanceRequest $request): \Illuminate\Http\JsonResponse
     {
-        $data = $request->validated();
-
-        $file_name_of_request = $data['import_file']->getClientOriginalName();
-        $value = [
-            'file_name' => $file_name_of_request,
-            'created_by_id' => auth()->user()->id,
+        $file = $request->file('file');
+        $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
+        $file->storeAs('import_attendance', $fileName);
+        $row_success = 0;
+        $row_fail = 0;
+        $error = "";
+        $id = Auth::user()->id;
+        $imported = $this->importAttendanceRepository->create([
+            'created_by_id' => Auth::user()->id,
+            'file_name' => $fileName,
             'status' => 0,
-            'success_amount' => 0,
-            'fail_amount' => 0,
-            'error' => "",
-        ];
-        $importAttendance = $this->importAttendanceRepository->create($value);
-        $id = $importAttendance->id;
-        $import = new AttendanceImport($id);// Tạo một
-        $import->import($data['import_file']);
-
-        return $this->sendResponse(null, 'Upload file import successfully, please check mail!');
+            'success_amount' => $row_success,
+            'fail_amount' => $row_fail,
+            'error' => $error
+        ]);
+        ImportAttendanceJob::dispatch($fileName,$id);
+        $result = ImportAttendanceResource::make($imported);
+        return $this->sendResponse($result, __('common.import_done'));
     }
 
     public function statisticalFileImport(Request $request)

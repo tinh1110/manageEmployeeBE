@@ -99,7 +99,7 @@ class TeamController extends BaseApiController
     {
         $conditions = $request->all();
         $conditions = array_merge($conditions, ['team_id' => $id,]);
-        $users = $this->userRepository->getByCondition($conditions);
+        $users = $this->userRepository->getByCondition($conditions,['role']);
         $result = UserResource::collection($users);
         return $this->sendPaginationResponse($users, $result);
     }

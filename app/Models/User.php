@@ -31,7 +31,7 @@ class User extends Authenticatable
     /**
      * Get the user gender
      */
-    public function getGender($value)
+    public static function getGender($value)
     {
         switch ($value) {
             case self::Male:
@@ -47,7 +47,7 @@ class User extends Authenticatable
     /**
      * Get the user status
      */
-    public function getStatus($status)
+    public static function getStatus($status)
     {
         if ($status == self::Active) {
             return 'Còn hoạt động';

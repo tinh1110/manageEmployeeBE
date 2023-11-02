@@ -19,16 +19,21 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\BeforeImport;
 use App\Common\CommonConst;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AttendanceImport implements  ToCollection,WithChunkReading,WithHeadingRow,ShouldQueue, SkipsOnError, SkipsOnFailure, SkipsEmptyRows,WithEvents
+class AttendanceImport implements  ToCollection,WithStartRow,WithStyles
 {
     use SkipsErrors, SkipsFailures, Importable,RemembersRowNumber,RemembersChunkOffset;
-    protected int $id;
+    protected $fileName;
+    protected $id;
 
-    public function __construct($id)
+    public function __construct($fileName,$id)
     {
+        $this->fileName = $fileName;
         $this->id = $id;
     }
     /**
@@ -71,6 +76,16 @@ class AttendanceImport implements  ToCollection,WithChunkReading,WithHeadingRow,
     public function chunkSize(): int
     {
         return CommonConst::CHUNK_SIZE_ATTENDANCE;
+    }
+
+    public function startRow(): int
+    {
+        // TODO: Implement startRow() method.
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        // TODO: Implement styles() method.
     }
 }
 

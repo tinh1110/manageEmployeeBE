@@ -29,18 +29,18 @@ class ExportAttendance implements FromCollection, WithMapping, WithStrictNullCom
     public function headings(): array
     {
         return [
-            'Created_by',
-            'type',
-            'start_date',
-            'end_date',
-            'start_time',
-            'end_time',
-            'reason',
-            'status',
-            'approver',
-            'approved_at',
-            'result',
-            'managers',
+            'Người tạo',
+            'Loại nghỉ',
+            'Ngày bắt đầu',
+            'Ngày kết thúc',
+            'Giờ bắt đầu',
+            'Giờ kết thúc',
+            'Lí do',
+            'Trạng thái',
+            'Người duyệt',
+            'Thời gian duyệt',
+            'Kết quả',
+//            'managers',
         ];
     }
 
@@ -48,10 +48,10 @@ class ExportAttendance implements FromCollection, WithMapping, WithStrictNullCom
     {
         $attendanceResource = AttendanceResource::make($attendance);
         if ($attendanceResource->status == CommonConst::NOT_REVIEWED) {
-            $statusString = "NOT REVIEWED";
+            $statusString = "Chưa duyệt";
         }else if ($attendanceResource->status == CommonConst::ATTENDANCE_REJECT) {
-            $statusString = " ATTENDANCE REJECT";
-        }else $statusString = " ATTENDANCE ACCEPT";
+            $statusString = "Đã duyệt";
+        }else $statusString = " Bị từ chối";
 
         return [
             $attendanceResource->user->name,
@@ -65,7 +65,7 @@ class ExportAttendance implements FromCollection, WithMapping, WithStrictNullCom
             $attendanceResource->approver,
             $attendanceResource->approved_at,
             $attendanceResource->result,
-            $attendanceResource->managers,
+//            $attendanceResource->managers,
         ];
     }
 

@@ -70,10 +70,10 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
-        public_path('user_avatar') => storage_path('app/user_avatar'),
-        public_path('event_img') => storage_path('app/event_img'),
-        public_path('user_attendance') => storage_path('app/user_attendance'),
+        public_path('storage') => storage_path('app'),
+//        public_path('storage/user_avatar') => storage_path('app/user_avatar'),
+//        public_path('storage/event_img') => storage_path('app/event_img'),
+//        public_path('storage/user_attendance') => storage_path('app/user_attendance'),
     ],
 
 ];
