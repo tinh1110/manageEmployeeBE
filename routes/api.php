@@ -29,6 +29,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     Route::prefix('/user')->name('user.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('list');
+        Route::get('/deleted', [UserController::class, 'getUsersDeleted'])->name('list_deleted');
         Route::post('/store', [UserController::class, 'store'])->name('store');
         Route::delete('/delete/{id}', [UserController::class, 'delete'])->name('delete');
         Route::delete('/forceDelete/{id}', [UserController::class, 'forceDelete'])->name('force_delete');

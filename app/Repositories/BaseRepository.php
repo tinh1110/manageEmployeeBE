@@ -171,4 +171,41 @@ abstract class BaseRepository
 
         return $entities->get();
     }
+    public function getDeletedByCondition($condition, $relations = [], $relationCounts = [])
+    {
+        $condition = CommonHelper::removeNullValue($condition);
+        $data = collect($condition);
+
+
+        // select list column
+        $entities = $this->model->onlyTrashed()->select($this->model->selectable ?? ['*']);
+
+        // load relation counts
+        if (count($relationCounts)) {
+            $entities = $entities->withCount($relationCounts);
+        }
+
+        // load relations
+        if (count($relations)) {
+            $entities = $entities->with($relations);
+        }
+
+        // filter list by condition
+        if (count($condition) && method_exists($this, 'search')) {
+            foreach ($condition as $key => $value) {
+                $entities = $this->search($entities, $key, $value);
+            }
+        }
+        // order list
+        $orderBy = $data->has('sort') && in_array($data['sort'], $this->model->sortable) ? $data['sort'] : $this->model->getKeyName();
+        $entities = $entities->orderBy($orderBy, $data->has('sortType') && $data['sortType'] == 1 ? 'asc' : 'desc');
+
+        // limit result
+       $limit = $data->has('limit') ? (int)$data['limit'] : CommonConst::DEFAULT_PER_PAGE;
+        if ($limit) {
+            return $entities->paginate($limit);
+        }
+
+        return $entities->get();
+    }
 }

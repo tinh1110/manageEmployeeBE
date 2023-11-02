@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Imports\AttendanceImport;
 use App\Models\Attendance;
 use App\Models\RoleAttendance;
 use Illuminate\Bus\Queueable;
@@ -19,14 +20,14 @@ class ImportAttendanceJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private mixed $rows;
+    private mixed $filename;
     protected int $id;
     /**
      * Create a new job instance.
      */
-    public function __construct($rows,$id)
+    public function __construct($filename,$id)
     {
-        $this->rows = $rows;
+        $this->filename = $filename;
         $this->id = $id;
     }
 
@@ -103,6 +104,8 @@ class ImportAttendanceJob implements ShouldQueue
      */
     public function handle(): void
     {
+        Excel::import(new AttendanceImport($this->fileName,$this->id),storage_path('app/public/import_users/'.$this->fileName));
+
         $idInTableImport_Attendances = $this->id;
         $infoImportAttendance = DB::table('imported_attendances')->where('id', $idInTableImport_Attendances)->select('success_amount','fail_amount','created_by_id')->get();
         $successAmount = $infoImportAttendance[0]->success_amount;

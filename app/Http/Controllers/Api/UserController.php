@@ -7,7 +7,9 @@ use App\Exports\UsersExport;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\ImportUserRequest;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\User\UserResource;
+use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -242,9 +244,8 @@ class UserController extends BaseApiController
     public function exportUser(Request $request)
     {
         $condition = $request->all();
-
-        $users = $this->userRepository->getByCondition($condition);
-        $result = UserResource::collection($users);
+        $users = $this->userRepository->getByCondition($condition,['role']);
+        $result = ProfileResource::collection($users);
         $export = new UsersExport($result);
         return $export->download('users.xlsx');
     }
@@ -334,5 +335,13 @@ class UserController extends BaseApiController
             DB::rollBack();
             return $this->sendExceptionError($e);
         }
+    }
+
+    public function getUsersDeleted(Request $request) {
+        $condition = $request->all();
+        $users = $this->userRepository->getDeletedByCondition($condition);
+        $result = UserResource::collection($users);
+
+        return $this->sendPaginationResponse($users, $result);
     }
 }
