@@ -24,6 +24,6 @@ class ImportUser implements ShouldQueue
     }
     public function handle(): void
     {
-        Excel::import(new ImportUsers($this->fileName,$this->id),storage_path('app/public/import_users/'.$this->fileName));
+        Excel::import(new ImportUsers($this->fileName,$this->id),storage_path('app/import_users/'.$this->fileName));
     }
 }

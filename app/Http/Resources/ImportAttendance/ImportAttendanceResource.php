@@ -16,8 +16,12 @@ class ImportAttendanceResource extends JsonResource
 
         public function toArray(Request $request): array
         {
+            $string = $this->file_name;
+            $parts = explode('/', $string);
+            $file_name = end($parts);
+            $filename = substr($file_name, strpos($file_name, '_') + 1);
             return [
-                'file_name' => $this->file_name,
+                'file_name' => $filename,
                 'id' => $this->id,
                 'created_by_id' => $this->created_by_id,
                 'status' => $this->status,

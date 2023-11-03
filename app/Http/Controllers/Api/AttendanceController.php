@@ -293,7 +293,7 @@ class AttendanceController extends BaseApiController
      */
     public function importAttendance(ImportAttendanceRequest $request): \Illuminate\Http\JsonResponse
     {
-        $file = $request->file('file');
+        $file = $request->file('import_file');
         $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
         $file->storeAs('import_attendance', $fileName);
         $row_success = 0;
@@ -308,7 +308,7 @@ class AttendanceController extends BaseApiController
             'fail_amount' => $row_fail,
             'error' => $error
         ]);
-        ImportAttendanceJob::dispatch($fileName,$id);
+        ImportAttendanceJob::dispatch($fileName,$id,$imported->id);
         $result = ImportAttendanceResource::make($imported);
         return $this->sendResponse($result, __('common.import_done'));
     }

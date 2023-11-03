@@ -23,7 +23,7 @@ class ExportTeamplateImportAttendance implements WithHeadings, WithMapping, From
     public function array(): array
     {
         $data = [
-            'STT' => '1',
+            'user_id' => '1',
             'type_id' => '1',
             'start_date' => '2003-10-11',
             'end_date' => '2003-10-12',
@@ -31,11 +31,10 @@ class ExportTeamplateImportAttendance implements WithHeadings, WithMapping, From
             'end_time' => '10:12:12',
             'reason' => 'dau bung',
             'status' => '1',
-            'result' => 'dang duyet',
-            'ids' => '2,3,4',
-            'approver_id'=> '2',
+            'result' => 'ok ok',
+            'ids' => '1,9',
+            'approver_id'=> '1',
             'approved_at'=> '2023-08-22 07:17:51',
-            'img'=> ''
         ];
         return [$data];
     }
@@ -46,35 +45,31 @@ class ExportTeamplateImportAttendance implements WithHeadings, WithMapping, From
     public function headings(): array
     {
         return [
-            'STT',
-            'type_id',
+            'user_id',
+            'type_id(Loại nghỉ)',
             'start_date',
             'end_date',
             'start_time',
             'end_time',
             'reason',
-            'status',
+            'status(0:Chưa duyệt, 1: đã duyệt, 2: từ chối)',
             'result',
-            'ids ',
+            'ids',
             'approver_id',
             'approved_at',
-            'img',
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $lastRow = $sheet->getHighestRow();
-        for ($row = 2; $row <= $lastRow; $row++) {
-            $sheet->getStyle("A{$row}:Z{$row}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        }
-        return [
-            // Style the first row as bold text.
-            1    => [
-                'font' => ['bold' => true],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        $sheet->getStyle('A1:L1')->applyFromArray([
+            'fill' => [
+                'fillType' => 'solid',
+                'startColor' => [
+                    'rgb' => 'FFA500', // Màu cam
+                ],
             ],
-        ];
+        ]);
     }
 
     /**
@@ -83,7 +78,7 @@ class ExportTeamplateImportAttendance implements WithHeadings, WithMapping, From
     public function map($row): array
     {
         return [
-            $row['STT'],
+            $row['user_id'],
             $row['type_id'],
             $row['start_date'],
             $row['end_date'],
@@ -95,7 +90,6 @@ class ExportTeamplateImportAttendance implements WithHeadings, WithMapping, From
             $row['ids'],
             $row['approver_id'],
             $row['approved_at'],
-            $row['img']
         ];
     }
 
