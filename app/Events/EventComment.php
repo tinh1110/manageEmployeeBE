@@ -2,34 +2,38 @@
 
 namespace App\Events;
 
-use App\Models\Imported_users;
+use App\Models\Comment;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ImportedUser implements ShouldBroadcast
+class EventComment implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public Imported_users $imported_users;
+
+    public Comment $comment;
     /**
      * Create a new event instance.
      */
-    public function __construct(Imported_users $imported_users)
+    public function __construct(Comment $comment)
     {
-        $this->imported_users = $imported_users;
+        $this->comment = $comment;
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return Channel
+     */
     public function broadcastOn()
     {
-        return new Channel('imported_users');
+        return new Channel('comment');
     }
 
     public function broadcastAs()
     {
-        return 'imported_users';
+        return 'comment';
     }
 }

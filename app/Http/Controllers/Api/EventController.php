@@ -9,7 +9,9 @@ use App\Http\Requests\Event\UpdateEventRequest;
 use App\Http\Resources\Event\EventResource;
 use App\Http\Resources\Event\EventTypeResource;
 use App\Jobs\SendMailForUsers;
+use App\Models\Comment;
 use App\Models\User;
+use App\Repositories\CommentRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
 use Illuminate\Http\Request;
@@ -18,7 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 class EventController extends BaseApiController
 {
 
-    public function __construct(protected EventRepository $eventRepository,protected EventTypeRepository $eventTypeRepository)
+    public function __construct(protected EventRepository $eventRepository,protected EventTypeRepository $eventTypeRepository,
+        )
     {
     }
 
@@ -39,6 +42,7 @@ class EventController extends BaseApiController
             FileHelper::deleteFileFromStorage($path);
         }
         $event = $this->eventRepository->delete($id);
+        Comment::where('event_id', $id)->delete();
         if ($event) {
             return $this->sendResponse(null, __('common.deleted'));
         }

@@ -15,4 +15,5 @@ return [
     'logout_successful' => 'Logout successful!',
     'import_done' => 'Import done!',
     'update_admin' => "Cannot update the admin",
+    'login_inactive' => "Account is inactive",
 ];

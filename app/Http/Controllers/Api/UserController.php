@@ -9,7 +9,6 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\User\ImportUserRequest;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\User\UserResource;
-use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +45,12 @@ class UserController extends BaseApiController
      * API lay ra tat ca user khong phan trang
      */
     public function getAll(): \Illuminate\Http\JsonResponse
+    {
+        $users = $this->userRepository->findAll();
+        $result = UserResource::collection($users);
+        return $this->sendResponse($result);
+    }
+    public function foo(): \Illuminate\Http\JsonResponse
     {
         $users = $this->userRepository->findAll();
         $result = UserResource::collection($users);

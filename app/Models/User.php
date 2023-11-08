@@ -19,7 +19,8 @@ class User extends Authenticatable
     protected const Male = 1;
     protected const Female = 2;
     protected const Active = 0;
-    protected const Inactive = 1;
+    public const Inactive = 1;
+
 
 
     public function role()
