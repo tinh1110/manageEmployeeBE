@@ -31,6 +31,7 @@ class Attendance extends Model
         'img',
         'status',
         'result',
+        'total_hours',
         'approver_id',
         'approved_at'
     ];

@@ -19,7 +19,7 @@ class DateHelper
 
     /**
      * @param          $date
-     * @param string $format
+     * @param  string  $format
      *
      * @return string
      */

@@ -42,13 +42,12 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::delete('/delete/{id}', [UserController::class, 'delete'])->name('delete');
         Route::delete('/forceDelete/{id}', [UserController::class, 'forceDelete'])->name('force_delete');
         Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
-        Route::get('/exportTemplate', [UserController::class, 'exportTemplate'])->name('export_template');
+//        Route::get('/exportTemplate', [UserController::class, 'exportTemplate'])->name('export_template');
         Route::post('/importUser', [UserController::class, 'importUser'])->name('import');
         Route::get('/exportUser', [UserController::class, 'exportUser'])->name('export');
-        Route::delete('/deleteMulti', [UserController::class, 'deleteMulti']);
-        Route::delete('/forceDeleteMulti', [UserController::class, 'forceDeleteMulti']);
+//        Route::delete('/forceDeleteMulti', [UserController::class, 'forceDeleteMulti']);
         Route::post('/restore/{id}', [UserController::class, 'restore'])->name('restore');
-        Route::post('/restoreMulti', [UserController::class, 'restoreMulti']);
+//        Route::post('/restoreMulti', [UserController::class, 'restoreMulti']);
         Route::get('/file-import',[AdminController::class, 'importView'])->name('import_view');
         Route::post('/import', [AdminController::class, 'import'])->name('import_user');
         Route::get('/export-template',[AdminController::class, 'exportTemplate'])->name('export_template');
@@ -91,18 +90,22 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     });
     Route::get('/attendance/show/{id}', [AttendanceController::class, 'show']);
+    Route::get('/attendance/type', [AttendanceController::class, 'type']);
+    Route::get('/attendance/exportAll', [AttendanceController::class, 'exportAll']);
+
 
     Route::prefix('/attendance')->name('attendance.')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('list');
+        Route::get('/all', [AttendanceController::class, 'all'])->name('listAll');
         Route::post('/store', [AttendanceController::class, 'store'])->name('store');
         Route::delete('/delete/{id}', [AttendanceController::class, 'delete'])->name('delete');
         Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('update');
         Route::put('/accept/{id}', [AttendanceController::class, 'review'])->name('accept');
         Route::put('/reject/{id}', [AttendanceController::class, 'review'])->name('reject');
         Route::get('/export', [AttendanceController::class, 'export'])->name('export');
-        Route::post('/importAttendance', [AttendanceController::class, 'importAttendance'])->name('import');
-        Route::get('/get-importAttendance', [AttendanceController::class, 'statisticalFileImport'])->name('importedList');
-        Route::get('/export-templateImportAttendance', [AttendanceController::class, 'exportTemplate'])->name('exportTemplate');
+//        Route::post('/importAttendance', [AttendanceController::class, 'importAttendance'])->name('import');
+//        Route::get('/get-importAttendance', [AttendanceController::class, 'statisticalFileImport'])->name('importedList');
+//        Route::get('/export-templateImportAttendance', [AttendanceController::class, 'exportTemplate'])->name('exportTemplate');
     });
 
     Route::prefix('/comment')->group(function () {

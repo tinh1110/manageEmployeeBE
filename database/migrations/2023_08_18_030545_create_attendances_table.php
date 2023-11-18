@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->unsignedInteger('created_by_id');
             $table->tinyInteger('type_id');
+            $table->unsignedDouble('total_hours');
             $table->date('start_date')->notnull();
             $table->date('end_date')->notnull();
             $table->time('start_time')->notnull();

@@ -100,6 +100,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'day_off',
         'avatar',
         'address',
         'phone_number',
