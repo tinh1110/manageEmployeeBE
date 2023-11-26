@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Team\DeleteTeamRequest;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\Team\TeamResource;
 use App\Http\Requests\Team\CreateTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
@@ -100,7 +101,7 @@ class TeamController extends BaseApiController
         $conditions = $request->all();
         $conditions = array_merge($conditions, ['team_id' => $id,]);
         $users = $this->userRepository->getByCondition($conditions,['role']);
-        $result = UserResource::collection($users);
+        $result = ProfileResource::collection($users);
         return $this->sendPaginationResponse($users, $result);
     }
 

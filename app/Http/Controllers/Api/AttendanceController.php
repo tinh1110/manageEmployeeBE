@@ -307,28 +307,34 @@ class AttendanceController extends BaseApiController
     public function review(Request $request, string $id): \Illuminate\Http\JsonResponse
     {
         $attendance = $this->attendanceRepository->findOrFail($id, ['user']);
-        $manage_type = $attendance->manager_type;
-        // if the manager role_type (in role_attendance table) is only view, cannot review
-        if (empty($manage_type) || !($manage_type->role_type == CommonConst::CAN_REVIEW)) {
-            return $this->sendError("You cannot process this!", Response::HTTP_FORBIDDEN, 403);
-        }
-        $currentUrl = $request->url();
-        $status = (strpos($currentUrl, '/accept/')) ? CommonConst::ATTENDANCE_ACCEPT : CommonConst::ATTENDANCE_REJECT;
-        $data = [
-            "status" => $status,
-            "approver_id" => auth()->user()->id,
-            "approved_at" => date('Y-m-d H:i:s'),
-            'name' => auth()->user()->name
-        ];
-        if (!empty($request->result)) {
-            $data['result'] = $request->result;
-        }
-        $attendance = $this->attendanceRepository->update($id, $data);
+        $managers = $attendance->manager;
+        $user_id = $request->user()->id;
+        foreach ($managers as $manager) {
+            if ($manager->id == $user_id) {
+                $currentUrl = $request->url();
+                $status = (strpos($currentUrl, '/accept/')) ? CommonConst::ATTENDANCE_ACCEPT : CommonConst::ATTENDANCE_REJECT;
+                $data = [
+                    "status" => $status,
+                    "approver_id" => auth()->user()->id,
+                    "approved_at" => date('Y-m-d H:i:s'),
+                    'name' => auth()->user()->name
+                ];
+                if (!empty($request->result)) {
+                    $data['result'] = $request->result;
+                }
+                $attendance = $this->attendanceRepository->update($id, $data);
 
-        $result = AttendanceResource::make($attendance);
-        $user_email = $attendance->user->email;
-        SendAttendanceReviewMail::dispatch($user_email, $data);
-        return $this->sendResponse($result);
+                $result = AttendanceResource::make($attendance);
+                $user_email = $attendance->user->email;
+                SendAttendanceReviewMail::dispatch($user_email, $data);
+                return $this->sendResponse($result);
+            }
+        }
+        // if the manager role_type (in role_attendance table) is only view, cannot review
+//        if (empty($manage_type) || !($manage_type->role_type == CommonConst::CAN_REVIEW)) {
+            return $this->sendError("Bạn không có quyền duyệt đơn này", Response::HTTP_FORBIDDEN, 403);
+//        }
+
     }
 
     public function export(Request $request)

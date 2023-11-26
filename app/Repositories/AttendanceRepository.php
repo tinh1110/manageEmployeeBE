@@ -22,8 +22,10 @@ class AttendanceRepository extends BaseRepository
             'created_by_id' => $query->where($column, $data),
             'type_id' => $query->where($column, $data),
             'manager' => $query->whereRelation('manager', 'user_id', $data),
-            'start' => $query->where('end_date', '>=', Carbon::parse($data)),
-            'end' => $query->where('start_date', '<=',  Carbon::parse($data)),
+            'start' => $query->where('end_date', '<=', Carbon::parse($data)),
+            'end' => $query->where('start_date', '>=',  Carbon::parse($data)),
+            'start_date' => $query->where('end_date', '>=', Carbon::parse($data)),
+            'end_date' => $query->where('start_date', '<=',  Carbon::parse($data)),
             'ids' => $query->whereIn('created_by_id', $data),
             default => $query,
         };

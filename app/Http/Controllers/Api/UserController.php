@@ -47,7 +47,7 @@ class UserController extends BaseApiController
     public function getAll(): \Illuminate\Http\JsonResponse
     {
         $users = $this->userRepository->findAll();
-        $result = UserResource::collection($users);
+        $result = ProfileResource::collection($users);
         return $this->sendResponse($result);
     }
     public function foo(): \Illuminate\Http\JsonResponse
