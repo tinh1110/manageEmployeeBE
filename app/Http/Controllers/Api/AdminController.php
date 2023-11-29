@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
 use App\Http\Resources\ImportedUser\ImportedUserResources;
 use App\Http\Resources\ProfileResource;
+use App\Imports\TimeKeepingImport;
 use App\Jobs\importUser;
 use App\Models\Imported_users;
 use App\Repositories\ImportedUserRepository;
@@ -79,8 +80,8 @@ class AdminController extends BaseApiController
         $file = $request->file('file');
         $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
         $file->storeAs('timeKeeping', $fileName);
-        Excel::import(new ImportUsers($this->fileName,$this->id),storage_path('app/import_users/'.$this->fileName));
-        return $this->sendResponse($result, __('common.import_done'));
+        Excel::import(new TimeKeepingImport(), $file);
+        return $this->sendResponse(null, __('common.import_done'));
 
     }
 }

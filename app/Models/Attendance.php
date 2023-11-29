@@ -15,6 +15,9 @@ class Attendance extends Model
 {
     use HasFactory;
 
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECT = 2;
+    const STATUS_PENDING = 0;
     /**
      * The attributes that are mass assignable.
      *
