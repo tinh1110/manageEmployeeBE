@@ -36,6 +36,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     public function headings(): array
     {
         return [
+            'id',
             'name',
             'email',
             'address',
@@ -50,7 +51,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:I1')->applyFromArray([
+        $sheet->getStyle('A1:J1')->applyFromArray([
             'fill' => [
                 'fillType' => 'solid',
                 'startColor' => [
@@ -68,6 +69,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         $gender = User::getGender($row->gender);
         $status = User::getStatus($row->status);
         return [
+            $row->id,
             $row->name,
             $row->email,
             $row->address,

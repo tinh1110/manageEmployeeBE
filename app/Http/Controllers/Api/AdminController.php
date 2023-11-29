@@ -72,6 +72,15 @@ class AdminController extends BaseApiController
         dispatch(new ImportUser($fileName, $id));
         $result = ImportedUserResources::make($imported);
         return $this->sendResponse($result, __('common.import_done'));
+    }
+
+    public function importTime(ImportUserRequest $request)
+    {
+        $file = $request->file('file');
+        $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
+        $file->storeAs('timeKeeping', $fileName);
+        Excel::import(new ImportUsers($this->fileName,$this->id),storage_path('app/import_users/'.$this->fileName));
+        return $this->sendResponse($result, __('common.import_done'));
 
     }
 }
