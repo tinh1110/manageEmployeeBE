@@ -12,12 +12,13 @@ class TimeKeeping extends Model
     protected $fillable = [
         'month',
         'user_id',
+        'user_name',
         'time',
         'late',
         'forget',
         'paid_leave',
         'unpaid_leave',
-        'day_off',
+        'day_work',
         'punish',
     ];
 

@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Attendance;
+use App\Models\TimeKeeping;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -109,9 +110,10 @@ class TimeKeepingImport implements ToCollection,WithStartRow
 
             // Lưu thông tin của nhân viên vào mảng 3 chiều
             $employeeData[] = [
+                'month' => $monthFull,
                 'user_id' => $user_id,
                 'user_name' => $user_name,
-                'timeKeeping' => $employeeSchedule,
+                'time' => $employeeSchedule,
                 'total' => $total,
                 'paidDay' => $paidDay,
                 'late' => $late,
@@ -119,25 +121,32 @@ class TimeKeepingImport implements ToCollection,WithStartRow
             ];
 
         }
-        $data[] = $employeeData;
-
-//        dd($employeeData);
         foreach ($employeeData as $record){
             $user_id = $record['user_id'];
             $dayoff = User::where('id', $user_id)->first()->day_off + 1;
-            dd($dayoff);
-            $attendancesAll = Attendance::where('created_by_id',1)->where('status', Attendance::STATUS_APPROVED)->where(function ($query) use ($start, $end) {
+            $attendancesAll = Attendance::where('created_by_id',$user_id)->where('status', Attendance::STATUS_APPROVED)->where(function ($query) use ($start, $end) {
                 $query->where('start_date', '<=', $end)
                     ->where('end_date', '>=', $start);
             })->get();
-            $sumAll = $attendancesAll->sum('total_hours');
-
-            $attendanceLate = Attendance::where('created_by_id',1)->where('status', Attendance::STATUS_APPROVED)->whereIn('type_id', [1,2])->where(function ($query) use ($start, $end) {
+            $attendanceLate = Attendance::where('created_by_id',$user_id)->where('status', Attendance::STATUS_APPROVED)->whereIn('type_id', [1,2])->where(function ($query) use ($start, $end) {
                 $query->where('start_date', '<=', $end)
                     ->where('end_date', '>=', $start);
             })->get();
-            $sum = $attendanceLate->sum('total_hours');
-            dd($sumAll);
+            $record['paid_leave'] = $attendancesAll->sum('total_hours')/8;//nghi co phep
+            $sum = $attendanceLate->sum('total_hours')/8;
+            $record['unpaid_leave'] = $record['total'] - $sum;
+            $record['day_work'] = $record['paidDay'] - $record['unpaid_leave'] - $record['paid_leave'];
+            if ($record['paid_leave'] > 0 ){
+                if ($record['paid_leave'] >= $dayoff){
+                    $dayoff = 0;
+                    $record['day_work'] +=  $dayoff;
+                }else{
+                    $dayoff -= $record['paid_leave'];
+                    $record['day_work'] += $record['paid_leave'];
+                }
+            }
+            User::where('id', $user_id)->update(['day_off' => $dayoff]);
+            TimeKeeping::create($record);
         }
     }
 

@@ -8,9 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
 use App\Http\Resources\ImportedUser\ImportedUserResources;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\Time\TimeResource;
 use App\Imports\TimeKeepingImport;
 use App\Jobs\importUser;
 use App\Models\Imported_users;
+use App\Models\TimeKeeping;
+use App\Models\User;
 use App\Repositories\ImportedUserRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
@@ -83,5 +86,22 @@ class AdminController extends BaseApiController
         Excel::import(new TimeKeepingImport(), $file);
         return $this->sendResponse(null, __('common.import_done'));
 
+    }
+
+    public function timeUser(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user_id = $request->user()->id;
+        $data = TimeKeeping::where('user_id', $user_id)->orderByDesc('id')->first();
+        $result = TimeResource::make($data);
+        return $this->sendResponse($result, __('common.get_data_success'));
+    }
+
+    public function timeList(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return $this->sendResponse($result, __('common.get_data_success'));
     }
 }

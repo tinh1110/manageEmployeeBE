@@ -48,7 +48,10 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 //        Route::post('/restoreMulti', [UserController::class, 'restoreMulti']);
         Route::post('/import', [AdminController::class, 'import'])->name('import_user');
     });
+
     Route::post('/import/time', [AdminController::class, 'importTime']);
+    Route::get('/time', [AdminController::class, 'timeUser']);
+    Route::get('/timeList', [AdminController::class, 'timeList']);
         Route::get('/user/file-import',[AdminController::class, 'importView']);
         Route::post('/user/importUser', [UserController::class, 'importUser']);
         Route::get('/user/exportUser', [UserController::class, 'exportUser']);
