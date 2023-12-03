@@ -106,8 +106,13 @@ class RoleController extends BaseApiController
         $routeCollection = Route::getRoutes();
         $routeNames = [];
         foreach ($routeCollection as $route) {
-            if (str_contains($route->getAction()['prefix'], 'api')) {
-                $routeNames[] = $route->getName();
+            if (isset($route->getAction()['prefix']) && str_contains($route->getAction()['prefix'], 'api')) {
+                $route = $route->getName();
+                if (strpos($route, "gen") !== false) {
+
+                }else{
+                    $routeNames[] = $route;
+                }
             }
         }
         $routeNames = array_values(array_diff($routeNames, config('rolePermission.role_remove')));

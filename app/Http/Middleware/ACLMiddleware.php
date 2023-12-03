@@ -23,7 +23,7 @@ class ACLMiddleware
     {
         $userRolePermissions = auth()->user()->role->role_permissions;
         $currentRouteName = $request->route()->getName();
-        if(!$currentRouteName){
+        if(!$currentRouteName || strpos($currentRouteName, "gen") == 0){
             return $next($request);
         }
         if (!in_array($currentRouteName, $userRolePermissions)) {

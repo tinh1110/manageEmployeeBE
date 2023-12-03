@@ -30,7 +30,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     Route::get('/user/show/{id}', [UserController::class, 'show']);
     Route::get('/user/profile/{id}', [ProfileController::class, 'user']);
-    Route::get('/admin',[AdminController::class, 'getAdmin']);
+    Route::get('/admin', [AdminController::class, 'getAdmin']);
     Route::get('/get-all', [UserController::class, 'getAll']);
     Route::get('/foo', [UserController::class, 'foo']);
 
@@ -52,10 +52,11 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::post('/import/time', [AdminController::class, 'importTime']);
     Route::get('/time', [AdminController::class, 'timeUser']);
     Route::get('/timeList', [AdminController::class, 'timeList']);
-        Route::get('/user/file-import',[AdminController::class, 'importView']);
-        Route::post('/user/importUser', [UserController::class, 'importUser']);
-        Route::get('/user/exportUser', [UserController::class, 'exportUser']);
-        Route::get('/user/export-template',[AdminController::class, 'exportTemplate']);
+    Route::get('/time/export', [AdminController::class, 'exportTime']);
+    Route::get('/user/file-import', [AdminController::class, 'importView']);
+    Route::post('/user/importUser', [UserController::class, 'importUser']);
+    Route::get('/user/exportUser', [UserController::class, 'exportUser']);
+    Route::get('/user/export-template', [AdminController::class, 'exportTemplate']);
 
     Route::get('/event/edit/{id}', [EventController::class, 'edit']);
     Route::get('/event/type', [EventController::class, 'typeEvent']);
@@ -84,9 +85,9 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('/create-new-team', [TeamController::class, 'createNewTeam'])->name('create');
         Route::put('/update-team/{id}', [TeamController::class, 'updateTeam'])->name('update');
         Route::delete('/delete-team/{id}', [TeamController::class, 'deleteTeam'])->name('delete');
-        Route::get('/get-list-sub/{id}', [TeamController::class, 'getListSubTeam'])->name('listSub');
+//        Route::get('/get-list-sub/{id}', [TeamController::class, 'getListSubTeam'])->name('listSub');
         Route::get('/all-list-main-team', [TeamController::class, 'getAllMainTeam'])->name('getAllMainTeam');
-        Route::get('/all-list-sub-team', [TeamController::class, 'allListSubTeam'])->name('getAllListSub');
+//        Route::get('/all-list-sub-team', [TeamController::class, 'allListSubTeam'])->name('getAllListSub');
         Route::get('/get-list-user-of-team/{id}', [TeamController::class, 'getListUserOfTeam'])->name('getListUser');
         Route::post('/add-member/{id}', [TeamController::class, 'addMember'])->name('addMember');
         Route::delete('/remove-member/{id}', [TeamController::class, 'delete'])->name('removeMember');
@@ -110,7 +111,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 //        Route::get('/export-templateImportAttendance', [AttendanceController::class, 'exportTemplate'])->name('exportTemplate');
     });
 
-        Route::get('/attendance/all', [AttendanceController::class, 'all']);
+    Route::get('/attendance/all', [AttendanceController::class, 'all']);
     Route::prefix('/comment')->group(function () {
         Route::get('/', [CommentController::class, 'index']);
         Route::get('/{id}', [CommentController::class, 'getEventComment']);
@@ -120,7 +121,5 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::put('/update/{id}', [CommentController::class, 'update']);
         Route::delete('/delete/{id}', [CommentController::class, 'delete']);
     });
-
-
 });
 

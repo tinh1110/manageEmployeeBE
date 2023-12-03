@@ -89,7 +89,11 @@ class AdminController extends BaseApiController
         $count = User::whereNull('deleted_at')->count();
         $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
         $sortedData = $data->sortBy('id');
-        $result = TimeResource::collection($sortedData);
+        $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $result = [
+            'data' => TimeResource::collection($sortedData),
+            'month' => $month
+        ];
         return $this->sendResponse($result, __('common.import_done'));
 
     }
@@ -98,7 +102,11 @@ class AdminController extends BaseApiController
     {
         $user_id = $request->user()->id;
         $data = TimeKeeping::where('user_id', $user_id)->orderByDesc('id')->first();
-        $result = TimeResource::make($data);
+        $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $result = [
+            'data' => TimeResource::make($data),
+            'month' => $month
+        ];
         return $this->sendResponse($result, __('common.get_data_success'));
     }
 
@@ -107,7 +115,11 @@ class AdminController extends BaseApiController
         $count = User::whereNull('deleted_at')->count();
         $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
         $sortedData = $data->sortBy('id');
-        $result = TimeResource::collection($sortedData);
+        $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $result = [
+            'data' => TimeResource::collection($sortedData),
+            'month' => $month
+            ];
         return $this->sendResponse($result, __('common.get_data_success'));
     }
 
