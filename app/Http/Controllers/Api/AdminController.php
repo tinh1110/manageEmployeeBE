@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Common\CommonConst;
+use App\Exports\ExportTime;
 use App\Exports\UserTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
@@ -19,6 +20,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Type\Time;
 
 class AdminController extends BaseApiController
 {
@@ -84,7 +86,11 @@ class AdminController extends BaseApiController
         $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
         $file->storeAs('timeKeeping', $fileName);
         Excel::import(new TimeKeepingImport(), $file);
-        return $this->sendResponse(null, __('common.import_done'));
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return $this->sendResponse($result, __('common.import_done'));
 
     }
 
@@ -103,5 +109,15 @@ class AdminController extends BaseApiController
         $sortedData = $data->sortBy('id');
         $result = TimeResource::collection($sortedData);
         return $this->sendResponse($result, __('common.get_data_success'));
+    }
+
+    public function exportTime(){
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return Excel::download(new ExportTime($result), 'timekeeping:' . $month . '.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX);
     }
 }
