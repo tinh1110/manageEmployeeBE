@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 class ImportedUser implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $imported_users;
+    public Imported_users $imported_users;
     /**
      * Create a new event instance.
      */

@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleController extends BaseApiController
 {
-    public function __construct(protected RoleRepository $roleRepository,protected  UserRepository $userRepository)
+    public function __construct(protected RoleRepository $roleRepository, protected UserRepository $userRepository)
     {
     }
 
@@ -62,7 +62,9 @@ class RoleController extends BaseApiController
     {
         $data = $request->validated();
         $data['updated_by_id'] = auth()->user()->id;
-        if ($id== CommonConst::ADMIN_ID ) return $this->sendError( __('common.update_admin'));
+        if ($id == CommonConst::ADMIN_ID) {
+            return $this->sendError(__('common.update_admin'));
+        }
         $role_permissions = $request->input('role');
         $data['role_permissions'] = $role_permissions;
         $role = $this->roleRepository->update($id, $data);
@@ -73,7 +75,7 @@ class RoleController extends BaseApiController
     /*
      * Delete role
      * */
-    public function delete($id ): \Illuminate\Http\JsonResponse
+    public function delete($id): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -87,11 +89,10 @@ class RoleController extends BaseApiController
                     DB::commit();
                     return $this->sendResponse(null, __('common.deleted'));
                 }
-            }
-            else {
+            } else {
                 DB::rollBack();
                 return $this->sendError("Cann't delete role has user", null, Response::HTTP_CONFLICT);
-                }
+            }
             DB::rollBack();
             return $this->sendError(__('common.deleted'), null, Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
@@ -110,8 +111,14 @@ class RoleController extends BaseApiController
             }
         }
         $routeNames = array_values(array_diff($routeNames, config('rolePermission.role_remove')));
-        return $this->sendResponse($routeNames, __('common.get_data_success'));
-    }
+            $result = [];
+            foreach ($routeNames as $value) {
+                if ($value !== null) {
+                    $result[] = $value;
+                }
+            }
+        return $this->sendResponse($result, __('common.get_data_success'));
+        }
 
     public function changePermission(Request $request, $id)
     {

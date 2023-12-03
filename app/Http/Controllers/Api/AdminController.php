@@ -3,18 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Common\CommonConst;
+use App\Exports\ExportTime;
 use App\Exports\UserTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
 use App\Http\Resources\ImportedUser\ImportedUserResources;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\Time\TimeResource;
+use App\Imports\TimeKeepingImport;
 use App\Jobs\importUser;
 use App\Models\Imported_users;
+use App\Models\TimeKeeping;
+use App\Models\User;
 use App\Repositories\ImportedUserRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Type\Time;
 
 class AdminController extends BaseApiController
 {
@@ -72,6 +78,46 @@ class AdminController extends BaseApiController
         dispatch(new ImportUser($fileName, $id));
         $result = ImportedUserResources::make($imported);
         return $this->sendResponse($result, __('common.import_done'));
+    }
 
+    public function importTime(ImportUserRequest $request)
+    {
+        $file = $request->file('file');
+        $fileName = date("Y/m/d").'/'.time().'_'.$file->getClientOriginalName();
+        $file->storeAs('timeKeeping', $fileName);
+        Excel::import(new TimeKeepingImport(), $file);
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return $this->sendResponse($result, __('common.import_done'));
+
+    }
+
+    public function timeUser(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user_id = $request->user()->id;
+        $data = TimeKeeping::where('user_id', $user_id)->orderByDesc('id')->first();
+        $result = TimeResource::make($data);
+        return $this->sendResponse($result, __('common.get_data_success'));
+    }
+
+    public function timeList(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return $this->sendResponse($result, __('common.get_data_success'));
+    }
+
+    public function exportTime(){
+        $count = User::whereNull('deleted_at')->count();
+        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $sortedData = $data->sortBy('id');
+        $result = TimeResource::collection($sortedData);
+        return Excel::download(new ExportTime($result), 'timekeeping:' . $month . '.xlsx',
+            \Maatwebsite\Excel\Excel::XLSX);
     }
 }

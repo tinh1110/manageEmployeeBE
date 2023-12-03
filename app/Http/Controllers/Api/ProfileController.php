@@ -22,6 +22,13 @@ class ProfileController extends BaseApiController
         return $this->sendResponse($result);
     }
 
+    public function user($id)
+    {
+        $user = $this->userRepository->findOrFail($id, ['role']);
+        $result = ProfileResource::make($user);
+        return $this->sendResponse($result);
+    }
+
     public function updateProfile(EditProfileRequest $request)
     {
         // Get data valid from request

@@ -111,7 +111,7 @@ class ImportUsers implements ToCollection,WithStartRow,WithStyles
     public static function writeDataToColumn9(string $filePath1,int $row,string $error)
     {
         // Lấy đường dẫn đến file Excel
-        $filePath = storage_path('app/public/import_users/'. $filePath1);
+        $filePath = storage_path('app/import_users/'. $filePath1);
 
         // Đọc dữ liệu từ file Excel vào đối tượng Spreadsheet
         $spreadsheet = IOFactory::load($filePath);

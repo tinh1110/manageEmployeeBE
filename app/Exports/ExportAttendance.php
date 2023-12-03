@@ -35,6 +35,7 @@ class ExportAttendance implements FromCollection, WithMapping, WithStrictNullCom
             'Ngày kết thúc',
             'Giờ bắt đầu',
             'Giờ kết thúc',
+            'Tổng giờ nghỉ',
             'Lí do',
             'Trạng thái',
             'Người duyệt',
@@ -50,19 +51,21 @@ class ExportAttendance implements FromCollection, WithMapping, WithStrictNullCom
         if ($attendanceResource->status == CommonConst::NOT_REVIEWED) {
             $statusString = "Chưa duyệt";
         }else if ($attendanceResource->status == CommonConst::ATTENDANCE_REJECT) {
+            $statusString = "Bị từ chối";
+        }else
             $statusString = "Đã duyệt";
-        }else $statusString = " Bị từ chối";
 
         return [
-            $attendanceResource->user->name,
+            $attendance->user->name,
             $attendanceResource->type->name,
             $attendanceResource->start_date,
             $attendanceResource->end_date,
             $attendanceResource->start_time,
             $attendanceResource->end_time,
+            $attendanceResource->total_hours,
             $attendanceResource->reason,
             $statusString,
-            $attendanceResource->approver,
+            $attendance->approver_id ? $attendance->approver->name : null,
             $attendanceResource->approved_at,
             $attendanceResource->result,
 //            $attendanceResource->managers,

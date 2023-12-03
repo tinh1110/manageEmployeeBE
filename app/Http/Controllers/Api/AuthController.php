@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\User\UserResource;
+use App\Models\User;
 use App\Repositories\RoleRepository;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,6 +21,9 @@ class AuthController extends BaseApiController
         // check auth credentials
         if (Auth::attempt($credentials)) {
             $user = auth()->user();
+            if ($user->status == User::Inactive){
+                return $this->sendError( __('common.login_inactive'));
+            }
             $token = $user->createToken('authToken');
             // set default expiration
             if (!$request->remember) {

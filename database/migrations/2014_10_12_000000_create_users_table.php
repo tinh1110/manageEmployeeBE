@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('dob')->nullable();
             $table->text('details')->nullable();
             $table->tinyInteger('gender')->comment('1:Nam,2:Nữ');
+            $table->unsignedTinyInteger('day_off')->default(0);
             $table->tinyInteger('role_id')->notNull()->comment('1:Admin');
             $table->tinyInteger('status')->notNull()->comment('0:Active,1:Inactive');
             $table->unsignedInteger('created_by_id');

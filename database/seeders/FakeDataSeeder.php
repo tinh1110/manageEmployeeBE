@@ -32,7 +32,13 @@ class FakeDataSeeder extends Seeder
                 $routeNames[] = $route->getName();
             }
         }
-        $data['role_permissions'] = $routeNames;
+        foreach ($routeNames as $value) {
+            if ($value !== null) {
+                $result[] = $value;
+            }
+        }
+        $data['role_permissions'] = $result;
+
         DB::table('roles')->insert([
             'id' => 1,
             'role_name' => 'Admin',
@@ -72,16 +78,16 @@ class FakeDataSeeder extends Seeder
         }
 
         $attendanceTypes = [
-            ['id'=> 1,'name'=>'Late', 'created_by_id' => 1],
-            ['id'=> 2,'name'=>'Leave early', 'created_by_id' => 1],
-            ['id'=> 3,'name'=>'Break hours', 'created_by_id' => 1],
-            ['id'=> 4,'name'=>'Morning off', 'created_by_id' => 1],
-            ['id'=> 5,'name'=>'Afternoon off', 'created_by_id' => 1],
-            ['id'=> 6,'name'=>'All day off', 'created_by_id' => 1],
-            ['id'=> 7,'name'=>'Morning remote', 'created_by_id' => 1],
-            ['id'=> 8,'name'=>'Afternoon remote', 'created_by_id' => 1],
-            ['id'=> 9,'name'=>'All day remote', 'created_by_id' => 1],
-            ['id'=> 10,'name'=>'Other', 'created_by_id' => 1],
+            ['id'=> 1,'name'=>'Đi muộn', 'created_by_id' => 1],
+            ['id'=> 2,'name'=>'Về sớm', 'created_by_id' => 1],
+            ['id'=> 3,'name'=>'Nghỉ giữa giờ', 'created_by_id' => 1],
+            ['id'=> 4,'name'=>'Nghỉ buổi sáng', 'created_by_id' => 1],
+            ['id'=> 5,'name'=>'Nghỉ buổi chiều', 'created_by_id' => 1],
+            ['id'=> 6,'name'=>'Nghỉ cả ngày', 'created_by_id' => 1],
+            ['id'=> 7,'name'=>'Remote buổi sáng', 'created_by_id' => 1],
+            ['id'=> 8,'name'=>'Remote buổi chiều', 'created_by_id' => 1],
+            ['id'=> 9,'name'=>'Remote cả ngày', 'created_by_id' => 1],
+            ['id'=> 10,'name'=>'Khác', 'created_by_id' => 1],
         ];
 
         DB::table('attendance_types')->insert($attendanceTypes);

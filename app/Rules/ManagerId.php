@@ -15,8 +15,8 @@ class ManagerId implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $currentUserId = auth()->user()->id;
-        if(in_array($currentUserId, $value)) {
-            $fail('Chose your managers again!');
+        if(in_array($currentUserId, $value) && $currentUserId != 1) {
+            $fail('Không thể chọn bản thân làm người duyệt!');
         }
     }
 }
