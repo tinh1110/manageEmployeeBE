@@ -10,8 +10,10 @@ use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Requests\Team\RemoveMemberRequest;
 use App\Http\Requests\Team\AddMemberRequest;
 use App\Http\Resources\User\UserResource;
+use App\Http\Resources\User\UserTeamResource;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\UserTeam;
 use App\Repositories\TeamRepository;
 use App\Repositories\UserRepository;
 use Exception;
@@ -32,7 +34,6 @@ class TeamController extends BaseApiController
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $conditions = $request->all();
-        $conditions = array_merge($conditions, ["is_main_team" => true]);
         $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
         $result = TeamResource::collection($teams);
         return $this->sendPaginationResponse($teams, $result);
@@ -45,14 +46,6 @@ class TeamController extends BaseApiController
     {
         $data = $request->validated();
         $data['created_by_id'] = auth()->user()->id;
-        $request_url = $data['parent_team_id'] ?? null;
-        if ($request_url) {
-            $parrent_id = intval($data['parent_team_id']);
-            $countMembersOfTeam = $this->teamRepository->countMemberOfTeam($parrent_id);
-            if ($countMembersOfTeam > 0) {
-                return $this->sendError("This team already has members and cannot add a sub team ", Response::HTTP_NOT_FOUND, 404);
-            }
-        }
         $team = $this->teamRepository->create($data);
         $result = TeamResource::make($team);
         return $this->sendResponse($result);
@@ -61,14 +54,14 @@ class TeamController extends BaseApiController
     /*
      * Get list sub team
      * */
-    public function getListSubTeam($id, Request $request): \Illuminate\Http\JsonResponse
-    {
-        $conditions = $request->all();
-        $conditions = array_merge($conditions, ["parent_team_id" => $id]);
-        $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
-        $result = TeamResource::collection($teams);
-        return $this->sendPaginationResponse($teams, $result);
-    }
+//    public function getListSubTeam($id, Request $request): \Illuminate\Http\JsonResponse
+//    {
+//        $conditions = $request->all();
+//        $conditions = array_merge($conditions, ["parent_team_id" => $id]);
+//        $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
+//        $result = TeamResource::collection($teams);
+//        return $this->sendPaginationResponse($teams, $result);
+//    }
 
     /*
      * Edit
@@ -101,7 +94,11 @@ class TeamController extends BaseApiController
         $conditions = $request->all();
         $conditions = array_merge($conditions, ['team_id' => $id,]);
         $users = $this->userRepository->getByCondition($conditions,['role']);
-        $result = ProfileResource::collection($users);
+        $users->map(function($user) use ($id) {
+            $user->team_id = $id;
+            return $user;
+        });
+        $result = UserTeamResource::collection($users);
         return $this->sendPaginationResponse($users, $result);
     }
 
@@ -112,8 +109,7 @@ class TeamController extends BaseApiController
     {
         $data = $request->validated();
         $team = $this->teamRepository->findOrFail($id, ['getLeader']);
-        $arr = $data['ids'];
-        $team->users()->attach($arr);
+        DB::table('users_team')->insert(['user_id' => $data['id'], 'team_id' => $id, 'position_id' => $data['position_id']]);
         $result = TeamResource::make($team);
         return $this->sendResponse($result);
     }
@@ -124,10 +120,8 @@ class TeamController extends BaseApiController
     public function delete($id, RemoveMemberRequest $request): \Illuminate\Http\JsonResponse
     {
         $data = $request->validated();
-        $data['deleted_by_id'] = auth()->user()->id;
         $team = $this->teamRepository->findOrFail($id, ['getLeader']);
-        $arr = $data['ids'];
-        $team->users()->detach($arr);
+        DB::table('users_team')->where('team_id', $id)->where('user_id', $data['id'])->delete();
         $result = TeamResource::make($team);
         return $this->sendResponse($result);
     }
@@ -137,41 +131,23 @@ class TeamController extends BaseApiController
      */
     public function deleteTeam($id): \Illuminate\Http\JsonResponse
     {
-        DB::beginTransaction();
-        try {
-            $message = "Please to delete the list sub";
-            $team = $this->teamRepository->findOrFail($id, ['getLeader']);
-            $SubTeam = $this->teamRepository->getByCondition(["parent_team_id" => $id]);
-            if (count($SubTeam) == 0) {// kiem tra xem thang nay co team co ko ?
-                $this->teamRepository->deleteUsersTeam($id);//Xoa  bang user_team
-                $check = $this->teamRepository->delete($id);// Xoa cai team
-                if ($check) {
-                    DB::commit();
-                    return $this->sendResponse(null,"Delete Team successfully");
-                }
-                else {
-                    $message = "An error occurred, deletion failed";
-                }
-            }
-            DB::rollBack();
-            return $this->sendError($message, Response::HTTP_NOT_FOUND, 404);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return $this->sendExceptionError($e, Response::HTTP_NOT_FOUND);
-        }
+        $team = $this->teamRepository->findOrFail($id, ['getLeader']);
+        DB::table('users_team')->where('team_id', $id)->delete();
+        $team->delete();
+        return $this->sendResponse(null,"Delete successfully");
     }
 
     /*
      * get all sub team co phan trang
      */
-    public function allListSubTeam(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $conditions = $request->all();
-        $conditions = array_merge($conditions, ["is_sub_team" => true]);
-        $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
-        $result = TeamResource::collection($teams);
-        return $this->sendPaginationResponse($teams, $result);
-    }
+//    public function allListSubTeam(Request $request): \Illuminate\Http\JsonResponse
+//    {
+//        $conditions = $request->all();
+//        $conditions = array_merge($conditions, ["is_sub_team" => true]);
+//        $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
+//        $result = TeamResource::collection($teams);
+//        return $this->sendPaginationResponse($teams, $result);
+//    }
 
     /*
      * get all main team khong co phan trang
@@ -179,7 +155,6 @@ class TeamController extends BaseApiController
     public function getAllMainTeam(Request $request): \Illuminate\Http\JsonResponse
     {
         $conditions =  $request->all();
-        $conditions = array_merge($conditions, ["is_main_team" => true]);
         $teams = $this->teamRepository->findByCondition($conditions, ['getLeader']);
         $result = TeamResource::collection($teams->get());
         return $this->sendResponse($result);

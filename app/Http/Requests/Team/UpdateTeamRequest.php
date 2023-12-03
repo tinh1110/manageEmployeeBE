@@ -27,18 +27,17 @@ class UpdateTeamRequest extends FormRequest
     {
         $id = $this->route('id');
         return [
-            'parent_team_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('teams', 'id')
-            ],
             'name' => "required|string|min:4|max:255|unique:teams,name,$id",
             'leader_id' => [
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists('users', 'id')
             ],
-            'details' => 'nullable'
+            'details' => 'required',
+            'status' => 'required',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after_or_equal:start_date',
+            'customer' => 'required',
         ];
     }
 }

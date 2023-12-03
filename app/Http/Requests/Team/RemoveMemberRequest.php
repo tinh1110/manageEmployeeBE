@@ -26,10 +26,10 @@ class RemoveMemberRequest extends FormRequest
         public function rules(): array
     {
         return [
-            'ids' => 'array',
-            'ids.*' => [
+            'id' =>[
+                'nullable',
                 'integer',
-                Rule::exists('users_team', 'user_id')
+                Rule::exists('users', 'id')
             ],
         ];
     }
