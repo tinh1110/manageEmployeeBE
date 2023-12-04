@@ -47,7 +47,7 @@ class TeamResource extends JsonResource
             'name' => $this->name,
             'leader' => UserResource::make($this->getLeader),
             'details' => $this->details,
-            'status' => $status,
+            'status' => $this->status,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'customer' => $this->customer,

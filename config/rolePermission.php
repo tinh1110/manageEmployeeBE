@@ -9,6 +9,7 @@ return [
     ],
     'role_remove' => [
         "role.get_list",
+        "time",
         "role.change_permission",
         "login",
         "logout",

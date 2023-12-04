@@ -26,7 +26,7 @@ class AddMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' =>[
+            'user_id' =>[
                 'required',
                 'integer',
                 Rule::exists('users', 'id')

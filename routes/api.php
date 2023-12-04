@@ -49,7 +49,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('/import', [AdminController::class, 'import'])->name('import_user');
     });
 
-    Route::post('/import/time', [AdminController::class, 'importTime']);
+    Route::post('/import/time', [AdminController::class, 'importTime'])->name('time');
     Route::get('/time', [AdminController::class, 'timeUser']);
     Route::get('/timeList', [AdminController::class, 'timeList']);
     Route::get('/time/export', [AdminController::class, 'exportTime']);
@@ -80,13 +80,13 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     Route::get('/team/get-detail-team/{id}', [TeamController::class, 'getDetailTeam']);
 
-    Route::prefix('/team')->name('team.')->group(function () {
+    Route::prefix('/team')->name('project.')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->name('list');
         Route::post('/create-new-team', [TeamController::class, 'createNewTeam'])->name('create');
         Route::put('/update-team/{id}', [TeamController::class, 'updateTeam'])->name('update');
         Route::delete('/delete-team/{id}', [TeamController::class, 'deleteTeam'])->name('delete');
 //        Route::get('/get-list-sub/{id}', [TeamController::class, 'getListSubTeam'])->name('listSub');
-        Route::get('/all-list-main-team', [TeamController::class, 'getAllMainTeam'])->name('getAllMainTeam');
+        Route::get('/all-list-main-team', [TeamController::class, 'getAllMainTeam'])->name('getList');
 //        Route::get('/all-list-sub-team', [TeamController::class, 'allListSubTeam'])->name('getAllListSub');
         Route::get('/get-list-user-of-team/{id}', [TeamController::class, 'getListUserOfTeam'])->name('getListUser');
         Route::post('/add-member/{id}', [TeamController::class, 'addMember'])->name('addMember');

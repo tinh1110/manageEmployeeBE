@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Models\User;
 use App\Models\UserTeam;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,7 +16,8 @@ class UserTeamResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $position_id = UserTeam::where('user_id', $this->id)->where('team_id',$this->team_id)->first()->position_id;
+     $user =User::where('id', $this->id)->first();
+        $position_id = $this->position_id;
         switch ($position_id) {
             case 1:
                 $position = "Project manager";
@@ -43,8 +45,8 @@ class UserTeamResource extends JsonResource
             'gender' => $this->gender,
             'status' => $this->status,
             'details' => $this->details,
-            'role' => $this->role->role_name,
-            'position' => $position
+            'role' => $user->role->role_name,
+            'position_id' => $this->position_id,
         ];
     }
 }
