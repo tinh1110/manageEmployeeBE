@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Team;
 
 use App\Traits\ApiFailedValidation;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,16 +22,17 @@ class RemoveMemberRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, ValidationRule|array|string>
      */
         public function rules(): array
     {
         return [
-            'ids' => 'array',
-            'ids.*' => [
+            'user_id' =>[
+                'required',
                 'integer',
-                Rule::exists('users_team', 'user_id')
+                Rule::exists('users', 'id')
             ],
+            'position_id' => 'required|integer'
         ];
     }
 }

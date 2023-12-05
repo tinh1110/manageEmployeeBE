@@ -14,33 +14,6 @@ class TeamResource extends JsonResource
      *
      * @return int
      */
-    public function countUsersOfTeam($id): int
-    {
-        $totalMember = 0;
-        //Kiểm tra có phải team cha không
-        $IsParrent = DB::table('teams')->where('parent_team_id', $id)->count();
-//        dd($IsParrent);
-        if ($IsParrent === 0) {
-            //Đếm member của team con
-            $totalMember=DB::table('users_team')->where('team_id',$id)->count();
-        } else {
-            // lấy ra tất cả team con của team cha
-            $allSubTeam = DB::table('teams')->select('id')->where('parent_team_id', $id);
-            //Đếm member của các team con đó
-            $totalMember=DB::table('users_team')
-                ->whereIn('team_id', $allSubTeam)
-                ->distinct('user_id')
-                ->count();
-        }
-        return $totalMember;
-    }
-
-    public function countSubTeamsOfTeam($id): int
-    {
-        $totalSub = DB::table('teams')->where('parent_team_id', $id)->count();
-        return $totalSub;
-    }
-
     /**
      * Transform the resource into an array.
      *
@@ -48,15 +21,38 @@ class TeamResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $status="";
+        $totalMember=DB::table('users_team')->where('team_id',$this->id)->count();
+        switch ($this->status){
+            case 1:
+                $status = "Chưa bắt đầu";
+                break;
+            case 2:
+                $status = "Đang làm";
+                break;
+            case 3:
+                $status = "Bị hủy";
+                break;
+            case 4:
+                $status = "Tạm dừng";
+                break;
+            case 5:
+                $status = "Hoàn thành";
+                break;
+            default:
+                $status="Khác";
+        }
         return [
             'id' => $this->id,
-            'parent_team_id' => $this->parent_team_id,
             'name' => $this->name,
             'leader' => UserResource::make($this->getLeader),
             'details' => $this->details,
+            'status' => $this->status,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+            'customer' => $this->customer,
             'created_at' => $this->created_at->format("Y-m-d H:i:s"),
-            'total_member' => $this->countUsersOfTeam($this->id),
-            'total_subteam' => $this->countSubTeamsOfTeam($this->id),
+            'total_member' => $totalMember,
         ];
     }
 }

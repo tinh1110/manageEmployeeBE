@@ -26,18 +26,18 @@ class CreateTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_team_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('teams', 'id')
-            ],
-            'name' => 'required|string|unique:teams|min:4|max:100',
+            'name' => 'required|string',
             'leader_id' => [
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists('users', 'id')
             ],
-            'details' => 'nullable'
+            'details' => 'nullable',
+            'status' => 'nullable|integer',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after_or_equal:start_date',
+            'customer' => 'required',
+
         ];
     }
 }
