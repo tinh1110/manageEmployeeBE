@@ -33,7 +33,7 @@ class EditProfileRequest extends FormRequest
             'phone_number' => 'nullable|regex:/(0)[0-9]{9,11}$/',
             'gender' => 'required',
             'details' => 'nullable',
-            'password' => 'nullable|confirmed|min:6',
+
         ];
     }
 }

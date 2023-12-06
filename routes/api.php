@@ -26,6 +26,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
     Route::put('/updateProfile', [ProfileController::class, 'updateProfile'])->name('update_profile');
+    Route::put('/changePassword', [ProfileController::class, 'changePassword']);
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/user/show/{id}', [UserController::class, 'show']);
