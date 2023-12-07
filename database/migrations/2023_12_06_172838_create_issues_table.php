@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->tinyInteger('priority');
             $table->tinyInteger('status');
+            $table->text('comment');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();

@@ -9,6 +9,7 @@ use App\Http\Requests\EditProfileRequest;
 use App\Http\Requests\User\EditUserRequest;
 use App\Http\Resources\ProfileResource;
 use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends BaseApiController
 {
@@ -62,11 +63,12 @@ class ProfileController extends BaseApiController
         return $this->sendResponse($result, __('common.updated'));
     }
 
-    public function changePassword(ChangePasswordRequest $request)
+    public function changePassword(ChangePasswordRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
         $data = $request->validated();
-        if ($data['old_password'] != $user->password){
+
+        if ( Hash::check($user->password,$data['old_password']) ){
             return $this->sendError('Mật khẩu cũ không đúng');
         }
         $user = $this->userRepository->update($user->id, $data);

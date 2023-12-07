@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\IssueController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
@@ -122,5 +123,13 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::put('/update/{id}', [CommentController::class, 'update']);
         Route::delete('/delete/{id}', [CommentController::class, 'delete']);
     });
+
+    Route::prefix('/issue') ->controller(IssueController::class)->group(function (){
+        Route::post('/store', 'store');
+        Route::put('/edit/{id}', 'edit');
+        Route::put('/update/{id}', 'update');
+        Route::put('/delete/{id}', 'delete');
+    });
+
 });
 

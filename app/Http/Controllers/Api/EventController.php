@@ -11,7 +11,6 @@ use App\Http\Resources\Event\EventTypeResource;
 use App\Jobs\SendMailForUsers;
 use App\Models\Comment;
 use App\Models\User;
-use App\Repositories\CommentRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
 use Illuminate\Http\Request;
