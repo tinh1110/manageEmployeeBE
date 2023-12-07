@@ -125,7 +125,7 @@ class AdminController extends BaseApiController
 
     public function exportTime(){
         $count = User::whereNull('deleted_at')->count();
-        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
+        $data = TimeKeeping::orderByDesc('id')->limit(16)->get();
         $month = TimeKeeping::orderByDesc('id')->first()->month;
         $sortedData = $data->sortBy('id');
         $result = TimeResource::collection($sortedData);

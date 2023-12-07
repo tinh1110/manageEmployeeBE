@@ -101,6 +101,8 @@ class User extends Authenticatable
         'email',
         'password',
         'day_off',
+        'paid_day',
+        'unpaid_day',
         'avatar',
         'address',
         'phone_number',

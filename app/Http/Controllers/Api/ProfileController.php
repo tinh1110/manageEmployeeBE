@@ -68,10 +68,10 @@ class ProfileController extends BaseApiController
         $user = $request->user();
         $data = $request->validated();
 
-        if ( Hash::check($user->password,$data['old_password']) ){
+        if ( !Hash::check($data['old_password'], $user->password) ){
             return $this->sendError('Mật khẩu cũ không đúng');
         }
-        $user = $this->userRepository->update($user->id, $data);
+        $user = $this->userRepository->update($user->id, ['password' => $data['password']]);
         $result = ProfileResource::make($user);
         return $this->sendResponse($result, __('common.updated'));
     }
