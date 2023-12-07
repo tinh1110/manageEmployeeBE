@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Issue\CreateIssueRequest;
 use App\Http\Resources\Issue\IssueResource;
+use App\Models\Issue;
 use App\Repositories\IssueRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,12 +23,20 @@ class IssueController extends BaseApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index($id): JsonResponse
     {
-        $condition = $request->all();
+        $condition['project_id'] = $id;
         $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);
         $result = IssueResource::collection($issue);
+        return $this->sendPaginationResponse($issue, $result);
+    }
 
+    public function childrenIssue($project_id, $issue_id):JsonResponse
+    {
+        $condition['project_id'] = $project_id;
+        $condition['parent_id'] = $issue_id;
+        $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);
+        $result = IssueResource::collection($issue);
         return $this->sendPaginationResponse($issue, $result);
     }
 
@@ -56,6 +65,11 @@ class IssueController extends BaseApiController
         return $this->sendResponse($result);
     }
 
+    /**
+     * @param CreateIssueRequest $request
+     * @param $id
+     * @return JsonResponse
+     */
     public function update(CreateIssueRequest $request, $id):JsonResponse
     {
         $data = $request->validated();
@@ -66,6 +80,10 @@ class IssueController extends BaseApiController
         return $this->sendResponse($result);
     }
 
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
     public function delete($id):JsonResponse
     {
         $issue = $this->issueRepository->delete($id);

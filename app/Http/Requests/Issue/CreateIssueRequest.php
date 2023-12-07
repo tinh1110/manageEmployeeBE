@@ -34,6 +34,7 @@ class CreateIssueRequest extends FormRequest
             'priority' => 'required|integer',
             'comment' => 'nullable|string',
             'status' => 'required|integer',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

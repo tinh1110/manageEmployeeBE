@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('project_id');
             $table->unsignedInteger('parent_id')->nullable();
             $table->string('subject',255);
+            $table->json('image')->nullable();
             $table->text('description');
             $table->date('start_date');
             $table->date('end_date');

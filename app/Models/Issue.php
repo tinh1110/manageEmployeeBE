@@ -34,4 +34,9 @@ class Issue extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    protected array $sortable = ['created_at'];
+    protected $casts = [
+        'image' => 'array',
+    ];
 }

@@ -125,10 +125,12 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     });
 
     Route::prefix('/issue') ->controller(IssueController::class)->group(function (){
+        Route::get('/{id}', 'index');
         Route::post('/store', 'store');
         Route::put('/edit/{id}', 'edit');
         Route::put('/update/{id}', 'update');
-        Route::put('/delete/{id}', 'delete');
+        Route::delete('/delete/{id}', 'delete');
+        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
     });
 
 });
