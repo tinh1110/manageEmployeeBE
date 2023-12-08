@@ -122,7 +122,7 @@ class TimeKeepingImport implements ToCollection, WithStartRow
                 'user_name' => $user_name,
                 'time' => $employeeSchedule,
                 'total' => $total,
-                'paidDay' => $paidDay,
+                'total_day' => $paidDay,
                 'late' => $late,
                 'forget' => $forget,
             ];
@@ -131,9 +131,15 @@ class TimeKeepingImport implements ToCollection, WithStartRow
         foreach ($employeeData as $record) {
             $user_id = $record['user_id'];
             $user = User::where('id', $user_id)->first();
-            $dayoff = $user->dayoff;
-            $paidDay = $user->paid_day;
-            $unpaidDay = $user->unpaid_day;
+            $dayoff = $user->day_off;
+            $check = TimeKeeping::where('month', $monthFull)->where('user_id', $user_id)->orderByDesc('id')->first();
+            if ($check){
+                if ($dayoff > 0) $dayoff = $dayoff + $check->paid_leave;
+                else $dayoff = $check->paid_leave - $check->total_day + $check->day_work + $check->unpaid_leave;
+            }else
+            {
+                $dayoff += 1;
+            }
             $attendancesAll = Attendance::where('created_by_id', $user_id)->where('status',
                 Attendance::STATUS_APPROVED)->where(function ($query) use ($start, $end) {
                 $query->where('start_date', '<=', $end)
@@ -147,11 +153,9 @@ class TimeKeepingImport implements ToCollection, WithStartRow
             $record['paid_leave'] = $attendancesAll->sum('total_hours') / 8;//nghi co phep
             $sum = $attendanceLate->sum('total_hours') / 8;
             $record['unpaid_leave'] = $record['total'] - $sum;
-            $check = TimeKeeping::where('month', $monthFull)->where('user_id', $user_id)->orderByDesc('id')->first();
-            $list = TimeKeeping::where('user_id', $user_id)->get();
-            $count = count($list);
-
-            $record['day_work'] = $record['paidDay'] - $record['unpaid_leave'] - $record['paid_leave'];
+            $parts = explode("-", $monthFull);
+            $year = $parts[1];
+            $record['day_work'] = $record['total_day'] - $record['unpaid_leave'] - $record['paid_leave'];
             if ($record['paid_leave'] > 0) {
                 if ($record['paid_leave'] >= $dayoff) {
                     $dayoff = 0;
@@ -161,15 +165,17 @@ class TimeKeepingImport implements ToCollection, WithStartRow
                     $record['day_work'] += $record['paid_leave'];
                 }
             }
-            $paidDay = $list->sum('paid_leave');
-            $dayoff = $count - $paidDay;
-            $unpaidDay = $list->sum('unpaid_leave');
+
             if ($check) {
-                unset($record['total'], $record['paidDay'], $record['day_work']);
+                unset($record['total']);
                 TimeKeeping::where('id', $check->id)->update($record);
             } else {
                 TimeKeeping::create($record);
             }
+            $list = TimeKeeping::where('user_id', $user_id)->where('month', 'LIKE', '%' . $year . '%')->get();
+            $paidDay = $list->sum('paid_leave');
+            $unpaidDay = $list->sum('unpaid_leave');
+
             User::where('id', $user_id)->update([
                 'day_off' => $dayoff, 'unpaid_day' => $unpaidDay, 'paid_day' => $paidDay
             ]);
