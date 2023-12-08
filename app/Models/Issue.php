@@ -20,6 +20,16 @@ class Issue extends Model
         return $this->hasOne(User::class, 'id', 'assignee_id');
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Issue::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Issue::class, 'parent_id');
+    }
+
     protected $fillable = [
         'assignee_id',
         'project_id',

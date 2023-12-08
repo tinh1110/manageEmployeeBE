@@ -26,9 +26,10 @@ class IssueController extends BaseApiController
     public function index($id): JsonResponse
     {
         $condition['project_id'] = $id;
+//        $condition['type_issue'] = 3;
         $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);
         $result = IssueResource::collection($issue);
-        return $this->sendPaginationResponse($issue, $result);
+        return $this->sendResponse($result);
     }
 
     public function childrenIssue($project_id, $issue_id):JsonResponse
@@ -60,7 +61,7 @@ class IssueController extends BaseApiController
      */
     public function edit($id):JsonResponse
     {
-        $issue = $this->issueRepository->findOrFail($id);
+        $issue = $this->issueRepository->findOrFail($id, ['children']);
         $result = IssueResource::make($issue);
         return $this->sendResponse($result);
     }

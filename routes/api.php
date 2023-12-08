@@ -114,6 +114,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     });
 
     Route::get('/attendance/all', [AttendanceController::class, 'all']);
+
     Route::prefix('/comment')->group(function () {
         Route::get('/', [CommentController::class, 'index']);
         Route::get('/{id}', [CommentController::class, 'getEventComment']);
@@ -127,10 +128,10 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::prefix('/issue') ->controller(IssueController::class)->group(function (){
         Route::get('/{id}', 'index');
         Route::post('/store', 'store');
-        Route::put('/edit/{id}', 'edit');
+        Route::get('/edit/{id}', 'edit');
         Route::put('/update/{id}', 'update');
         Route::delete('/delete/{id}', 'delete');
-        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
+        Route::get('/ {project_id}/{issue_id}', 'childrenIssue');
     });
 
 });
