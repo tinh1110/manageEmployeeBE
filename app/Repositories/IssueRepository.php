@@ -18,7 +18,7 @@ class IssueRepository extends BaseRepository
     {
         return match ($column) {
             'subject' => $query->where($column, 'like', "%${data}%"),
-            'assignee_id' => $query->where($column, $data),
+            'assignee_id', 'project_id' => $query->where($column, $data),
             'type_issue' => $this->handleTypeIssue($query, $data),
             'status' => $this->handleStatus($query, $data),
             'date' => $query->where('start_time', '<=', $data)->where('end_time', '>=', $data),
@@ -31,10 +31,10 @@ class IssueRepository extends BaseRepository
         if ($data == 2) {
             // Thực hiện các xử lý cụ thể cho trường hợp 'type_issue'
             // Ví dụ: $query->where('type_issue', $data)
-            $query->whereNotNull('parent_id');
+            $query->whereNull('parent_id');
         }
         else if ($data == 3){
-            $query->whereNull('parent_id');
+            $query->whereNotNull('parent_id');
         }
         return $query;
     }
