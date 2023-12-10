@@ -131,7 +131,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('/edit/{id}', 'edit');
         Route::put('/update/{id}', 'update');
         Route::delete('/delete/{id}', 'delete');
-        Route::get('/ {project_id}/{issue_id}', 'childrenIssue');
+        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
     });
 
 });

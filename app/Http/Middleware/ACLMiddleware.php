@@ -22,6 +22,9 @@ class ACLMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $userRolePermissions = auth()->user()->role->role_permissions;
+        if (auth()->user()->role->id == 1) {
+            return $next($request);
+        }
         $currentRouteName = $request->route()->getName();
         if(!$currentRouteName || strpos($currentRouteName, "gen") == 0){
             return $next($request);

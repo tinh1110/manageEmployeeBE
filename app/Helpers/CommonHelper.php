@@ -27,7 +27,7 @@ class CommonHelper
 
     public static function updatePercentDone($project_id)
     {
-        $issue_done = count(Issue::where('project_id', $project_id)->where('status', 4)->whereNull('parent_id')->get());
+        $issue_done = count(Issue::where('project_id', $project_id)->where('status', 5)->whereNull('parent_id')->get());
         $issue = count(Issue::where('project_id', $project_id)->whereNull('parent_id')->get());
         $percent = round($issue_done / $issue *100);
         Team::where('id', $project_id)->update(['percent_done' => $percent]);
