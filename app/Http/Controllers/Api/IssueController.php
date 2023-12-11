@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\CommonHelper;
 use App\Http\Requests\Issue\CreateIssueRequest;
 use App\Http\Resources\Issue\IssueResource;
 use App\Models\Issue;
@@ -76,7 +77,7 @@ class IssueController extends BaseApiController
         $data = $request->validated();
         $data['updated_by'] = $request->user()->id;
         $issue = $this->issueRepository->update($id, $data);
-
+        CommonHelper::updatePercentDone($issue->project_id);
         $result = IssueResource::make($issue);
         return $this->sendResponse($result);
     }
@@ -87,8 +88,10 @@ class IssueController extends BaseApiController
      */
     public function delete($id):JsonResponse
     {
+        $project_id = $this->issueRepository->findOrFail($id)->project_id;
         $issue = $this->issueRepository->delete($id);
         $result = IssueResource::make($issue);
+        CommonHelper::updatePercentDone($project_id);
         return $this->sendResponse($result);
     }
 }
