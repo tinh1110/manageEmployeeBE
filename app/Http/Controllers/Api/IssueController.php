@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\CommonConst;
 use App\Helpers\CommonHelper;
+use App\Helpers\FileHelper;
 use App\Http\Requests\Issue\CreateIssueRequest;
 use App\Http\Resources\Issue\IssueResource;
 use App\Models\Issue;
@@ -50,6 +52,19 @@ class IssueController extends BaseApiController
     public function store(CreateIssueRequest $request): JsonResponse
     {
         $data = $request->validated();
+        if ($request->hasFile('image')) {
+            $imgName = [];
+            foreach ($request->image as $img) {
+                $imgPath =pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME).'-'.  time().'.'.$img->extension();
+                $folder = CommonConst::ISSUE_IMG_PATH;
+                FileHelper::saveFileToStorage($folder, $img, $imgPath);
+                $imgName[] = $folder.'/'.$imgPath;
+            }
+            $data['image'] = $imgName;
+
+        } else {
+            $data['image'] =[];
+        }
         $user_id = $request->user()->id;
         $data['created_by'] = $user_id;
         $issue = $this->issueRepository->create($data);
@@ -76,6 +91,26 @@ class IssueController extends BaseApiController
     public function update(CreateIssueRequest $request, $id):JsonResponse
     {
         $data = $request->validated();
+        $paths = $this->eventRepository->findOrFail($id)->image ?? [];
+        $delete = $request->input('delete') ?? [];
+
+        foreach ($delete as $del) {
+            FileHelper::deleteFileFromStorage($del);
+        }
+        $temp = array_diff($paths,$delete);
+
+
+        if ($request->hasFile('image')) {
+            foreach ($request->image as $img) {
+                $imgPath =pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME).'-'.  time().'.'.$img->extension();
+                $folder = CommonConst::ISSUE_IMG_PATH;
+
+                FileHelper::saveFileToStorage($folder, $img, $imgPath);
+                $temp[] = $folder.'/'.$imgPath;
+            }
+        }
+
+        $data['image'] = $temp;
         $data['updated_by'] = $request->user()->id;
         $issue = $this->issueRepository->update($id, $data);
         CommonHelper::updatePercentDone($issue->project_id);
