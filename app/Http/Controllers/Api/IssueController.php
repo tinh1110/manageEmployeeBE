@@ -24,8 +24,9 @@ class IssueController extends BaseApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function index($id): JsonResponse
+    public function index($id, Request $request): JsonResponse
     {
+        $condition = $request->all();
         $condition['project_id'] = $id;
 //        $condition['type_issue'] = 3;
         $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);

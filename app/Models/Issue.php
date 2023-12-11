@@ -40,6 +40,7 @@ class Issue extends Model
         'end_date',
         'priority',
         'status',
+        'comment',
         'created_by',
         'updated_by',
         'deleted_by',
