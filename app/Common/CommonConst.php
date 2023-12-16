@@ -61,6 +61,7 @@ class CommonConst
     const USER_AVATAR_PATH = 'user_avatar';
     //event img path
     const EVENT_IMG_PATH = 'event_img';
+    const ISSUE_IMG_PATH = 'issue_img';
 
     //attendance colors
     const ATTENDANCE_ACCEPT_COLOR = 'green';
