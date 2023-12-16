@@ -15,6 +15,11 @@ class IssueResource  extends JsonResource
         $user_created = $this->created_by ? ProfileResource::make(User::where('id', $this->created_by)->first()) : null;
         $user_assignee = $this->assignee_id ? ProfileResource::make(User::where('id', $this->assignee_id)->first()) : null;
         $user_updated = $this->updated_by ?  ProfileResource::make(User::where('id', $this->updated_by)->first()) : null;
+        foreach ($this->children as $child) {
+            $child->assignee = $child->assignee_id ? ProfileResource::make(User::where('id', $child->assignee_id)->first()) : null;
+            $child->created_by = $child->created_by ? ProfileResource::make(User::where('id', $child->created_by)->first()) : null;
+            $child->updated_by = $child->updated_by ? ProfileResource::make(User::where('id', $child->updated_by)->first()) : null;
+        }
         return [
             'id' => $this->id,
             'assignee' => $user_assignee,
