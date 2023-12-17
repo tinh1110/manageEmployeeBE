@@ -40,11 +40,21 @@ class IssueRepository extends BaseRepository
     }
     private function handleStatus($query, $data)
     {
-        return match ($data) {
-            1,2,3,4,5 => $query->where('status', $data),
-            6 => $query->where('status', '!=', 5),
-            default => $query,
+        switch ($data) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                $query = $query->where('status', $data);
+                break;
+            case 6:
+                $query = $query->where('status', '!=', 5);
+                break;
+            default:
+                break;
+        }
 
-        };
+        return $query;
     }
 }

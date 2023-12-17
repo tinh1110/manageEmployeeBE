@@ -127,7 +127,7 @@ class IssueController extends BaseApiController
         $project_id = $this->issueRepository->findOrFail($id)->project_id;
         $issue = $this->issueRepository->delete($id);
         $result = IssueResource::make($issue);
-        CommonHelper::updatePercentDone($project_id);
+//        CommonHelper::updatePercentDone($project_id);
         return $this->sendResponse($result);
     }
 }

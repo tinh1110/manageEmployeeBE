@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Team;
 
 use App\Http\Resources\User\UserResource;
+use App\Models\Issue;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,14 @@ class TeamResource extends JsonResource
             default:
                 $status="Khác";
         }
+        $issue_done = count(Issue::where('project_id', $this->id)->where('status', 5)->whereNull('parent_id')->get());
+        $issue = count(Issue::where('project_id', $this->id)->whereNull('parent_id')->get());
+        if ($issue != 0) {
+            $percent = round($issue_done / $issue * 100);
+        } else {
+            $percent = 0;
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -53,6 +62,7 @@ class TeamResource extends JsonResource
             'customer' => $this->customer,
             'created_at' => $this->created_at->format("Y-m-d H:i:s"),
             'total_member' => $totalMember,
+            'percent' => $percent,
         ];
     }
 }

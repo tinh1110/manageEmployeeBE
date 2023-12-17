@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Issue;
 
 use App\Http\Resources\ProfileResource;
+use App\Models\Issue;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -35,7 +36,7 @@ class IssueResource  extends JsonResource
             'created_at' =>  $this->created_at ? date("d-m-Y", $this->created_at->timestamp) : null,
             'created_by' => $user_created,
             'updated_by' =>  $user_updated,
-            'children' =>  $this->children,
+            'children' => ($this->parent_id) ? null : $this->children,
         ];
     }
 }
