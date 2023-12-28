@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Common\CommonConst;
 use App\Exports\ExportTime;
 use App\Exports\UserTemplateExport;
+use App\Helpers\FileHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
+use App\Http\Requests\ReportRequest;
 use App\Http\Resources\ImportedUser\ImportedUserResources;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\Time\TimeResource;
 use App\Imports\TimeKeepingImport;
 use App\Jobs\importUser;
+use App\Jobs\SendMailReport;
 use App\Models\Imported_users;
 use App\Models\TimeKeeping;
 use App\Models\User;
@@ -131,5 +134,29 @@ class AdminController extends BaseApiController
         $result = TimeResource::collection($sortedData);
         return Excel::download(new ExportTime($result), 'timekeeping:' . $month . '.xlsx',
             \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    public function report(ReportRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->all();
+        if ($data['isAnonymous'] == "true") {
+            $data['user'] = $request->user()->name;
+        } else {
+            $data['user'] ="Thành viên ẩn danh";
+        }
+        $data['image'] = [];
+        if ($request->hasFile('image')) {
+            $imgName = [];
+            foreach ($request->image as $img) {
+                $imgPath =pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME).'-'.  time().'.'.$img->extension();
+                $folder = "report";
+                FileHelper::saveFileToStorage($folder, $img, $imgPath);
+                $imgName[] = $folder.'/'.$imgPath;
+            }
+            $data['image'] = $imgName;
+
+        }
+        dispatch(new SendMailReport($data));
+        return $this->sendResponse(null, "Gửi góp ý thành công");
     }
 }

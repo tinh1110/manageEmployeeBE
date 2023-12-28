@@ -35,6 +35,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::get('/admin', [AdminController::class, 'getAdmin']);
     Route::get('/get-all', [UserController::class, 'getAll']);
     Route::get('/foo', [UserController::class, 'foo']);
+    Route::post('/report', [AdminController::class, 'report']);
 
 
     Route::prefix('/user')->name('user.')->group(function () {
