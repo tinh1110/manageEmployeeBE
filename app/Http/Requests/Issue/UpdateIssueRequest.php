@@ -5,9 +5,10 @@ namespace App\Http\Requests\Issue;
 use App\Traits\ApiFailedValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateIssueRequest extends FormRequest
+class UpdateIssueRequest extends FormRequest
 {
     use ApiFailedValidation;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -19,22 +20,21 @@ class CreateIssueRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         return [
-            'assignee_id' => 'nullable|integer',
-            'project_id' => 'required|integer',
+            'assignee_id' => 'required|integer',
             'subject' => 'required|string',
             'parent_id' => 'nullable|integer',
-            'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'priority' => 'required|integer',
-            'comment' => 'nullable|string',
             'status' => 'nullable|integer',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'description' => 'required|string',
         ];
     }
 }

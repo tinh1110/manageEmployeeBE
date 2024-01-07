@@ -6,6 +6,7 @@ use App\Http\Requests\CommentIssue\CreateIssueCommentRequest;
 use App\Http\Requests\CommentIssue\UpdateCommentIssueRequest;
 use App\Http\Resources\CommentIssue\CommentIssueResource;
 use App\Models\Comment;
+use App\Models\CommentIssue;
 use App\Repositories\CommentIssueRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -27,10 +28,12 @@ class CommentIssueController extends BaseApiController
         return $this->sendResponse($result, __('common.get_data_success'));
     }
 
-    public function getEventComment(Request $request,$id): \Illuminate\Http\JsonResponse
+    public function getIssueComment(Request $request,$id): \Illuminate\Http\JsonResponse
     {
 //        $condition['event_id'] = $id;
-        $comments = Comment::where('issue_id', $id)
+        $comments = CommentIssue::where('issue_id', $id)
+            ->with('children')
+            ->whereNull('parent_id')
         ->get();
 //        $comments = $this->commentRepository->getByCondition($condition,['']);
 //        $comments = EventComment::where('event_id',$id)->whereNull('parent_id')->get();
@@ -41,7 +44,7 @@ class CommentIssueController extends BaseApiController
     public function getChildrenComment(Request $request,$id,$parent_id): \Illuminate\Http\JsonResponse
     {
 
-        $comments = Comment::where('issue_id',$id)->get();
+        $comments = CommentIssue::where('issue_id',$id)->get();
         $result = CommentIssueResource::collection($comments);
 
         return $this->sendResponse($result, __('common.get_data_success'));
@@ -52,8 +55,6 @@ class CommentIssueController extends BaseApiController
         $comment = $this->commentRepository->findOrFail($id)->first();
 
         $comments = $this->commentRepository->delete($id);
-        broadcast(new EventComment($comment));
-
         if ($comments) {
             return $this->sendResponse(null, __('common.deleted'));
         }
@@ -65,7 +66,6 @@ class CommentIssueController extends BaseApiController
         $data = $request->validated();
         $comment = $this->commentRepository->create($data);
         $result = CommentIssueResource::make($comment);
-        Event::dispatch(new EventComment($comment));
         return $this->sendResponse($result);
     }
 
@@ -82,7 +82,6 @@ class CommentIssueController extends BaseApiController
         $data = $request->validated();
         $comments = $this->commentRepository->update($id, $data);
         $result = CommentIssueResource::make($comments);
-        broadcast(new EventComment($comments));
         return $this->sendResponse($result);
     }
 }

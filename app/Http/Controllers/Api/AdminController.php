@@ -115,12 +115,20 @@ class AdminController extends BaseApiController
 
     public function timeList(Request $request): \Illuminate\Http\JsonResponse
     {
-        $count = User::whereNull('deleted_at')->count();
-        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
-        $sortedData = $data->sortBy('id');
+        $user = User::orderByDesc('id')->get();
         $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $da = TimeKeeping::orderByDesc('id')->first();
+        $data = TimeKeeping::join('users','time_keepings.user_id' , '=', 'users.id')
+            ->select('time_keepings.*', 'users.id as id_user')
+            ->where('time_keepings.month', $month)
+//            ->whereNotNull('time_keepings.month')
+            ->get();
+//        dd(TimeResource::make($data[0]));
+
+//dd($data[16]->id_user);
+        $sortedData = $data->sortBy('id');
         $result = [
-            'data' => TimeResource::collection($sortedData),
+            'data' => TimeResource::collection($data),
             'month' => $month
             ];
         return $this->sendResponse($result, __('common.get_data_success'));
@@ -128,8 +136,14 @@ class AdminController extends BaseApiController
 
     public function exportTime(){
         $count = User::whereNull('deleted_at')->count();
-        $data = TimeKeeping::orderByDesc('id')->limit(16)->get();
         $month = TimeKeeping::orderByDesc('id')->first()->month;
+//        $data = TimeKeeping::orderByDesc('id')->limit(16)->get();
+
+        $data = TimeKeeping::join('users','time_keepings.user_id' , '=', 'users.id')
+            ->select('time_keepings.*', 'users.id as id_user')
+            ->where('time_keepings.month', $month)
+//            ->whereNotNull('time_keepings.month')
+            ->get();
         $sortedData = $data->sortBy('id');
         $result = TimeResource::collection($sortedData);
         return Excel::download(new ExportTime($result), 'timekeeping:' . $month . '.xlsx',

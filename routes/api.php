@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\CommentIssueController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\IssueController;
 use App\Http\Controllers\Api\ProfileController;
@@ -128,6 +129,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     Route::prefix('/issue') ->controller(IssueController::class)->group(function (){
         Route::get('/{id}', 'index');
+        Route::get('/parent/{id}', 'parent');
         Route::post('/store', 'store');
         Route::get('/edit/{id}', 'edit');
         Route::put('/update/{id}', 'update');
@@ -135,5 +137,13 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('/{project_id}/{issue_id}', 'childrenIssue');
     });
 
+    Route::prefix('/commentIssue')->controller(CommentIssueController::class)->group(function (){
+        Route::get('/{id}', 'getIssueComment');
+        Route::post('/store', 'store');
+        Route::get('/edit/{id}', 'edit');
+        Route::put('/update/{id}', 'update');
+        Route::delete('/delete/{id}', 'delete');
+        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
+    });
 });
 

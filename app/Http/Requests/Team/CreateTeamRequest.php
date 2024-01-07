@@ -35,7 +35,7 @@ class CreateTeamRequest extends FormRequest
             'details' => 'nullable',
             'status' => 'nullable|integer',
             'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_date',
+            'end_time' => 'required|date|after_or_equal:start_time',
             'customer' => 'required',
 
         ];

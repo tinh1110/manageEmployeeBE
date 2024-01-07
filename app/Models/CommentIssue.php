@@ -13,7 +13,7 @@ class CommentIssue extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['user_id','issue_id','body'];
+    protected $fillable = ['user_id','issue_id','body','parent_id'];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -21,5 +21,14 @@ class CommentIssue extends Model
     public function issue()
     {
         return $this->belongsTo(Issue::class);
+    }
+    public function parent()
+    {
+        return $this->belongsTo(CommentIssue::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(CommentIssue::class, 'parent_id');
     }
 }

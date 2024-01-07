@@ -36,7 +36,13 @@ class TeamController extends BaseApiController
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $conditions = $request->all();
+        if ($request->user()->role_id == 1) {
         $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
+        } else {
+            $conditions = array_merge($conditions, ["user_join" => $request->user()->id]);
+            $teams = $this->teamRepository->getByCondition($conditions, ['getLeader',]);
+        }
+
         $result = TeamResource::collection($teams);
         return $this->sendPaginationResponse($teams, $result);
     }

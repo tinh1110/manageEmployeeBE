@@ -23,8 +23,15 @@ class TeamRepository extends BaseRepository
             'start_date' => $query->where('end_date', '>=', Carbon::parse($data)),
             'end_date' => $query->where('start_date', '<=',  Carbon::parse($data)),
             'is_sub_team' => $data ? $query->whereNotNull('parent_team_id') : $query->whereNull('parent_team_id'),
+            'user_join' => $this->handlUserJoin($query, $data),
             default => $query,
         };
+    }
+    private function handlUserJoin($query, $data)
+    {
+        $query->join('users_team', 'teams.id', '=', 'users_team.team_id')
+            ->where('users_team.user_id', $data);
+        return $query;
     }
 
     public function deleteUsersTeam ($id)

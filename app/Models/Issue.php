@@ -20,6 +20,10 @@ class Issue extends Model
         return $this->hasOne(User::class, 'id', 'assignee_id');
     }
 
+    public function team()
+    {
+        return $this->belongsTo(Team::class, 'project_id', 'id');
+    }
     public function parent()
     {
         return $this->belongsTo(Issue::class, 'parent_id');
@@ -40,6 +44,7 @@ class Issue extends Model
         'end_date',
         'priority',
         'status',
+        'image',
         'comment',
         'created_by',
         'updated_by',

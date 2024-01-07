@@ -6,11 +6,15 @@ use App\Common\CommonConst;
 use App\Helpers\CommonHelper;
 use App\Helpers\FileHelper;
 use App\Http\Requests\Issue\CreateIssueRequest;
+use App\Http\Requests\Issue\UpdateIssueRequest;
+use App\Http\Resources\Issue\IssueNoChildrenResource;
 use App\Http\Resources\Issue\IssueResource;
 use App\Models\Issue;
 use App\Repositories\IssueRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class IssueController extends BaseApiController
 {
@@ -32,7 +36,7 @@ class IssueController extends BaseApiController
         $condition['project_id'] = $id;
 //        $condition['type_issue'] = 3;
         $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);
-        $result = IssueResource::collection($issue);
+        $result = IssueNoChildrenResource::collection($issue);
         return $this->sendResponse($result);
     }
 
@@ -44,6 +48,14 @@ class IssueController extends BaseApiController
         $result = IssueResource::collection($issue);
         return $this->sendPaginationResponse($issue, $result);
     }
+    public function parent($project_id):JsonResponse
+    {
+        $condition['project_id'] = $project_id;
+        $condition['type_issue'] = 2;
+        $issue = $this->issueRepository->getByCondition($condition, ['created_by', 'assignee']);
+        $result = IssueResource::collection($issue);
+        return $this->sendPaginationResponse($issue, $result);
+    }
 
     /**
      * @param CreateIssueRequest $request
@@ -51,7 +63,16 @@ class IssueController extends BaseApiController
      */
     public function store(CreateIssueRequest $request): JsonResponse
     {
+        $user_id = $request->user()->id;
         $data = $request->validated();
+        if (!in_array('assignee_id', $data)){
+            if ($user_id == 1) {
+                $data['assignee_id'] =
+                    DB::table('users_team')->where('team_id', $data['project_id'])->where('position_id', 1)->first()->user_id;
+            } else {
+            $data['assignee_id'] = $user_id;
+            }
+        }
         if ($request->hasFile('image')) {
             $imgName = [];
             foreach ($request->image as $img) {
@@ -65,7 +86,6 @@ class IssueController extends BaseApiController
         } else {
             $data['image'] =[];
         }
-        $user_id = $request->user()->id;
         $data['created_by'] = $user_id;
         $issue = $this->issueRepository->create($data);
         $result = IssueResource::make($issue);
@@ -84,32 +104,31 @@ class IssueController extends BaseApiController
     }
 
     /**
-     * @param CreateIssueRequest $request
+     * @param UpdateIssueRequest $request
      * @param $id
      * @return JsonResponse
      */
-    public function update(CreateIssueRequest $request, $id):JsonResponse
+    public function update(UpdateIssueRequest $request, $id):JsonResponse
     {
         $data = $request->validated();
-        $paths = $this->eventRepository->findOrFail($id)->image ?? [];
+        if ($data['parent_id'] == $id){
+            $data['parent_id'] = null;
+        }
+        $paths = $this->issueRepository->findOrFail($id)->image ?? [];
         $delete = $request->input('delete') ?? [];
 
         foreach ($delete as $del) {
             FileHelper::deleteFileFromStorage($del);
         }
         $temp = array_diff($paths,$delete);
-
-
         if ($request->hasFile('image')) {
             foreach ($request->image as $img) {
                 $imgPath =pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME).'-'.  time().'.'.$img->extension();
                 $folder = CommonConst::ISSUE_IMG_PATH;
-
                 FileHelper::saveFileToStorage($folder, $img, $imgPath);
                 $temp[] = $folder.'/'.$imgPath;
             }
         }
-
         $data['image'] = $temp;
         $data['updated_by'] = $request->user()->id;
         $issue = $this->issueRepository->update($id, $data);

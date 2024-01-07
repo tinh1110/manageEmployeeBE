@@ -27,6 +27,7 @@ class CreateIssueCommentRequest extends FormRequest
         return [
             'user_id' => 'required|integer',
             'issue_id' => 'required|integer',
+            'parent_id' => 'nullable|integer',
             'body' => 'required|string',
         ];
     }

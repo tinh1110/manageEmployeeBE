@@ -29,8 +29,8 @@ class CreateEventRequest extends FormRequest
             'type' => 'required',
             'start_time' => 'required|date|date_format:Y-m-d H:i:s',
             'end_time' => 'required|date|after:start_time|date_format:Y-m-d H:i:s',
-            'description' => 'nullable',
-            'location' => 'nullable',
+            'description' => 'required',
+            'location' => 'required',
             'link' => 'nullable',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];

@@ -35,6 +35,9 @@ class UserController extends BaseApiController
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $condition = $request->all();
+        $condition['sort'] = "id";
+        $condition['sortType'] = 1;
+
         $users = $this->userRepository->getByCondition($condition);
         $result = UserResource::collection($users);
 
