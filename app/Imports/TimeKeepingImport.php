@@ -131,6 +131,7 @@ class TimeKeepingImport implements ToCollection, WithStartRow
         foreach ($employeeData as $record) {
             $user_id = $record['user_id'];
             $user = User::where('id', $user_id)->first();
+            if(!$user) continue;
             $dayoff = $user->day_off;
             $check = TimeKeeping::where('month', $monthFull)->where('user_id', $user_id)->orderByDesc('id')->first();
             if ($check){

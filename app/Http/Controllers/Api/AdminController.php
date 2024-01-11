@@ -49,7 +49,8 @@ class AdminController extends BaseApiController
 
     public function getAdmin()
     {
-        $condition['role'] = CommonConst::ROLE_ADMIN;
+        $condition['role_id'] = CommonConst::ROLE_ADMIN;
+        $condition['limit'] = 100;
         $users = $this->userRepository->getByCondition($condition);
         $result = ProfileResource::collection($users);
         return $this->sendPaginationResponse($users, $result);
