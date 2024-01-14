@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\CommentIssue;
 
 use App\Traits\ApiFailedValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditProfileRequest extends FormRequest
+class CreateIssueCommentRequest extends FormRequest
 {
     use ApiFailedValidation;
 
@@ -25,15 +25,11 @@ class EditProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.auth()->user()->id,
-            'address' => 'nullable',
-            'dob' => 'nullable|before:today|date|date_format:Y-m-d',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
-            'phone_number' => 'nullable|regex:/(0)[0-9]{9,11}$/',
-            'gender' => 'required',
-            'details' => 'nullable',
-
+            'user_id' => 'required|integer',
+            'issue_id' => 'required|integer',
+            'parent_id' => 'nullable|integer',
+            'body' => 'required|string',
         ];
     }
+
 }

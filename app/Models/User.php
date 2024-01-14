@@ -96,11 +96,22 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Team', 'users_team', 'user_id', 'team_id');
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Team::class, 'users_team', 'user_id', 'team_id');
+    }
+    public function time()
+    {
+        return $this->hasOne(TimeKeeping::class, 'user_id', 'id',);
+    }
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'day_off',
+        'paid_day',
+        'unpaid_day',
         'avatar',
         'address',
         'phone_number',

@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\CommentIssueController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\IssueController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
@@ -26,6 +28,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
     Route::put('/updateProfile', [ProfileController::class, 'updateProfile'])->name('update_profile');
+    Route::put('/changePassword', [ProfileController::class, 'changePassword']);
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/user/show/{id}', [UserController::class, 'show']);
@@ -33,6 +36,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::get('/admin', [AdminController::class, 'getAdmin']);
     Route::get('/get-all', [UserController::class, 'getAll']);
     Route::get('/foo', [UserController::class, 'foo']);
+    Route::post('/report', [AdminController::class, 'report']);
 
 
     Route::prefix('/user')->name('user.')->group(function () {
@@ -112,6 +116,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     });
 
     Route::get('/attendance/all', [AttendanceController::class, 'all']);
+
     Route::prefix('/comment')->group(function () {
         Route::get('/', [CommentController::class, 'index']);
         Route::get('/{id}', [CommentController::class, 'getEventComment']);
@@ -120,6 +125,25 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('/edit/{id}', [CommentController::class, 'edit']);
         Route::put('/update/{id}', [CommentController::class, 'update']);
         Route::delete('/delete/{id}', [CommentController::class, 'delete']);
+    });
+
+    Route::prefix('/issue') ->controller(IssueController::class)->group(function (){
+        Route::get('/{id}', 'index');
+        Route::get('/parent/{id}', 'parent');
+        Route::post('/store', 'store');
+        Route::get('/edit/{id}', 'edit');
+        Route::put('/update/{id}', 'update');
+        Route::delete('/delete/{id}', 'delete');
+        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
+    });
+
+    Route::prefix('/commentIssue')->controller(CommentIssueController::class)->group(function (){
+        Route::get('/{id}', 'getIssueComment');
+        Route::post('/store', 'store');
+        Route::get('/edit/{id}', 'edit');
+        Route::put('/update/{id}', 'update');
+        Route::delete('/delete/{id}', 'delete');
+        Route::get('/{project_id}/{issue_id}', 'childrenIssue');
     });
 });
 

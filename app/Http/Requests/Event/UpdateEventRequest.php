@@ -29,8 +29,8 @@ class UpdateEventRequest extends FormRequest
             'link' => 'nullable',
             'start_time' => 'required|date|date_format:Y-m-d H:i:s',
             'end_time' => 'required|date|date_format:Y-m-d H:i:s',
-            'description' => 'nullable',
-            'location' => 'nullable',
+            'description' => 'required',
+            'location' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }

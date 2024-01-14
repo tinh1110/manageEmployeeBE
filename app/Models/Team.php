@@ -37,5 +37,10 @@ class Team extends Model
     {
         return $this->hasOne('App\Models\User', 'id', 'leader_id');
     }
+
+    public function user_join()
+    {
+        return $this->belongsToMany(User::class, 'users_team', 'team_id', 'user_id');
+    }
     public array $sortable = ['created_at', 'name'];
 }

@@ -16,6 +16,7 @@ class TimeKeeping extends Model
         'time',
         'late',
         'forget',
+        'total_day',
         'paid_leave',
         'unpaid_leave',
         'day_work',

@@ -5,10 +5,9 @@ namespace App\Http\Requests;
 use App\Traits\ApiFailedValidation;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditProfileRequest extends FormRequest
+class ChangePasswordRequest extends FormRequest
 {
     use ApiFailedValidation;
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,15 +24,8 @@ class EditProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.auth()->user()->id,
-            'address' => 'nullable',
-            'dob' => 'nullable|before:today|date|date_format:Y-m-d',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
-            'phone_number' => 'nullable|regex:/(0)[0-9]{9,11}$/',
-            'gender' => 'required',
-            'details' => 'nullable',
-
+            'old_password' => 'required|min:6',
+            'password' => 'required|confirmed|min:6',
         ];
     }
 }

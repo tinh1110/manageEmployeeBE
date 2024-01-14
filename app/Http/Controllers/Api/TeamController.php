@@ -36,7 +36,13 @@ class TeamController extends BaseApiController
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $conditions = $request->all();
+        if ($request->user()->role_id == 1) {
         $teams = $this->teamRepository->getByCondition($conditions, ['getLeader']);
+        } else {
+            $conditions = array_merge($conditions, ["user_join" => $request->user()->id]);
+            $teams = $this->teamRepository->getByCondition($conditions, ['getLeader',]);
+        }
+
         $result = TeamResource::collection($teams);
         return $this->sendPaginationResponse($teams, $result);
     }
@@ -144,6 +150,8 @@ class TeamController extends BaseApiController
         $data = $request->validated();
         $team = $this->teamRepository->findOrFail($id, ['getLeader']);
         $teamId = intval($id);
+        if ($data['position_id'] == 1)
+            return $this->sendError("Không được xóa Project Manager");
         DB::table('users_team')->where('team_id', $teamId)->where('user_id', $data['user_id'])->where('position_id', $data['position_id'])->delete();
         $result = TeamResource::make($team);
         return $this->sendResponse($result);

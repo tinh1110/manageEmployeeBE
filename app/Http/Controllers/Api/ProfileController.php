@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Common\CommonConst;
 use App\Helpers\FileHelper;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\EditProfileRequest;
 use App\Http\Requests\User\EditUserRequest;
 use App\Http\Resources\ProfileResource;
 use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends BaseApiController
 {
@@ -34,10 +36,10 @@ class ProfileController extends BaseApiController
         // Get data valid from request
         $id = auth()->user()->id;
         $data = $request->validated();
-
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
+//
+//        if (empty($data['password'])) {
+//            unset($data['password']);
+//        }
         $path = $this->userRepository->findOrFail($id)->avatar;
         if ($request['delete_avt'] && $path) {
             $data['avatar'] = null;
@@ -57,6 +59,19 @@ class ProfileController extends BaseApiController
             }
         }
         $user = $this->userRepository->update($id, $data);
+        $result = ProfileResource::make($user);
+        return $this->sendResponse($result, __('common.updated'));
+    }
+
+    public function changePassword(ChangePasswordRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        $data = $request->validated();
+
+        if ( !Hash::check($data['old_password'], $user->password) ){
+            return $this->sendError('Mật khẩu cũ không đúng');
+        }
+        $user = $this->userRepository->update($user->id, ['password' => $data['password']]);
         $result = ProfileResource::make($user);
         return $this->sendResponse($result, __('common.updated'));
     }

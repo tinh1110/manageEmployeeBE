@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Common\CommonConst;
 use App\Exports\ExportTime;
 use App\Exports\UserTemplateExport;
+use App\Helpers\FileHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportUserRequest;
+use App\Http\Requests\ReportRequest;
 use App\Http\Resources\ImportedUser\ImportedUserResources;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\Time\TimeResource;
 use App\Imports\TimeKeepingImport;
 use App\Jobs\importUser;
+use App\Jobs\SendMailReport;
 use App\Models\Imported_users;
 use App\Models\TimeKeeping;
 use App\Models\User;
@@ -46,7 +49,8 @@ class AdminController extends BaseApiController
 
     public function getAdmin()
     {
-        $condition['role'] = CommonConst::ROLE_ADMIN;
+        $condition['role_id'] = CommonConst::ROLE_ADMIN;
+        $condition['limit'] = 100;
         $users = $this->userRepository->getByCondition($condition);
         $result = ProfileResource::collection($users);
         return $this->sendPaginationResponse($users, $result);
@@ -112,12 +116,20 @@ class AdminController extends BaseApiController
 
     public function timeList(Request $request): \Illuminate\Http\JsonResponse
     {
-        $count = User::whereNull('deleted_at')->count();
-        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
-        $sortedData = $data->sortBy('id');
+        $user = User::orderByDesc('id')->get();
         $month = TimeKeeping::orderByDesc('id')->first()->month;
+        $da = TimeKeeping::orderByDesc('id')->first();
+        $data = TimeKeeping::join('users','time_keepings.user_id' , '=', 'users.id')
+            ->select('time_keepings.*', 'users.id as id_user')
+            ->where('time_keepings.month', $month)
+//            ->whereNotNull('time_keepings.month')
+            ->get();
+//        dd(TimeResource::make($data[0]));
+
+//dd($data[16]->id_user);
+        $sortedData = $data->sortBy('id');
         $result = [
-            'data' => TimeResource::collection($sortedData),
+            'data' => TimeResource::collection($data),
             'month' => $month
             ];
         return $this->sendResponse($result, __('common.get_data_success'));
@@ -125,11 +137,41 @@ class AdminController extends BaseApiController
 
     public function exportTime(){
         $count = User::whereNull('deleted_at')->count();
-        $data = TimeKeeping::orderByDesc('id')->limit($count)->get();
         $month = TimeKeeping::orderByDesc('id')->first()->month;
+//        $data = TimeKeeping::orderByDesc('id')->limit(16)->get();
+
+        $data = TimeKeeping::join('users','time_keepings.user_id' , '=', 'users.id')
+            ->select('time_keepings.*', 'users.id as id_user')
+            ->where('time_keepings.month', $month)
+//            ->whereNotNull('time_keepings.month')
+            ->get();
         $sortedData = $data->sortBy('id');
         $result = TimeResource::collection($sortedData);
         return Excel::download(new ExportTime($result), 'timekeeping:' . $month . '.xlsx',
             \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    public function report(ReportRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->all();
+        if ($data['isAnonymous'] == "true") {
+            $data['user'] = $request->user()->name;
+        } else {
+            $data['user'] ="Thành viên ẩn danh";
+        }
+        $data['image'] = [];
+        if ($request->hasFile('image')) {
+            $imgName = [];
+            foreach ($request->image as $img) {
+                $imgPath =pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME).'-'.  time().'.'.$img->extension();
+                $folder = "report";
+                FileHelper::saveFileToStorage($folder, $img, $imgPath);
+                $imgName[] = $folder.'/'.$imgPath;
+            }
+            $data['image'] = $imgName;
+
+        }
+        dispatch(new SendMailReport($data));
+        return $this->sendResponse(null, "Gửi góp ý thành công");
     }
 }
